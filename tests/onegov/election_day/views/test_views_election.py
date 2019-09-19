@@ -4,6 +4,7 @@ import pytest
 from freezegun import freeze_time
 from math import isclose
 
+from onegov.ballot import Election
 from onegov.election_day.layouts import ElectionLayout
 from tests.onegov.election_day.common import login
 from tests.onegov.election_day.common import MAJORZ_HEADER
@@ -449,18 +450,18 @@ def test_view_election_lists_panachage_majorz(election_day_app_gr):
     assert '/election/majorz-election/lists-panachage-data' in chart
 
 
-def test_view_election_lists_panachage_proporz(election_day_app_gr):
+def test_view_election_lists_panachage_proporz(
+        election_day_app_gr, majorz_election):
     client = Client(election_day_app_gr)
     client.get('/locale/de_CH').follow()
 
     login(client)
-
-    upload_proporz_election(client)
-
-    main = client.get('/election/proporz-election/lists-panachage')
+    session = election_day_app_gr.session_manager.session()
+    election = majorz_election(session)
+    main = client.get(f'/election/{election.id}/lists-panachage')
     assert '<h4>Panaschierstatistik</h4>' in main
 
-    data = client.get('/election/proporz-election/lists-panachage-data').json
+    data = client.get(f'/election/{election.id}/lists-panachage-data').json
 
     nodes = [node['name'] for node in data['nodes']]
     assert 'Blankoliste' in nodes
@@ -468,6 +469,12 @@ def test_view_election_lists_panachage_proporz(election_day_app_gr):
     assert 'CVP' in nodes
 
     links = [link['value'] for link in data['links']]
+    # results = sorted(
+    #     [(r['source'], r['target'], r['value']) for r in data['links']])
+    # assert results == [
+    #     (1, 2, 1),
+    #     (2, 1, 1)
+    # ]
     assert 1 in links
     assert 2 in links
     assert 4 in links

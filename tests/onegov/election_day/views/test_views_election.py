@@ -457,7 +457,7 @@ def test_view_election_lists_panachage_proporz(
 
     login(client)
     session = election_day_app_gr.session_manager.session()
-    election = majorz_election(session)
+    election, errors = majorz_election(session)
     main = client.get(f'/election/{election.id}/lists-panachage')
     assert '<h4>Panaschierstatistik</h4>' in main
 

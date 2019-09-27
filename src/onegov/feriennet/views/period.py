@@ -71,7 +71,7 @@ def view_periods(self, request):
         yield Link(_("Edit"), request.link(period, 'edit'))
 
         if not period.archived:
-            if period.confirmed and period.finalized:
+            if period.confirmed and period.finalized or not period.finalizable:
                 yield Link(
                     text=_("Archive"),
                     url=layout.csrf_protected_url(

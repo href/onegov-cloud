@@ -281,5 +281,5 @@ class PanelWidget(object):
     def __call__(self, field, **kwargs):
         return HTMLString(self.template.render(
             kind=field.kind,
-            text=field.text,
+            text=field.meta.request.translate(field.text),
         ).replace('">', '" ' + html_params(**kwargs) + '>'))

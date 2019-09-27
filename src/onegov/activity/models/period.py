@@ -55,7 +55,7 @@ class Period(Base, TimestampMixin):
 
     #: A finalizable period may have invoices associated with it, an
     #: unfinalizable period may not
-    finalizable = Column(Boolean, nullable=False, default=False)
+    finalizable = Column(Boolean, nullable=False, default=True)
 
     #: An archived period has been entirely completed
     archived = Column(Boolean, nullable=False, default=False)
@@ -239,7 +239,7 @@ class Period(Base, TimestampMixin):
         in a period newer than the current period.
 
         """
-        assert self.confirmed and self.finalized
+        assert self.confirmed and self.finalized or not self.finalizable
 
         self.archived = True
         self.active = False

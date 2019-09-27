@@ -161,6 +161,8 @@ def new_period(self, request, form):
             booking=form.booking,
             execution=form.execution,
             minutes_between=form.minutes_between.data,
+            confirmable=form.confirmable.data,
+            finalizable=form.finalizable.data,
             active=False)
 
         form.populate_obj(period)

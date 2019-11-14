@@ -127,10 +127,104 @@ class AuthenticationProvider(metaclass=ABCMeta):
         return cls()
 
 
+def spawn_ldap_client(**cfg):
+    """ Takes an LDAP configuration as found in the YAML and spawns an LDAP
+    client that is connected. If the connection fails, an exception is raised.
+
+    """
+    client = LDAPClient(
+        url=cfg.get('ldap_url', None),
+        username=cfg.get('ldap_username', None),
+        password=cfg.get('ldap_password', None))
+
+    try:
+        client.try_configuration()
+    except Exception as e:
+        raise ValueError(f"LDAP config error: {e}")
+
+    return client
+
+
+def ensure_user(session, username, role):
+    """ Creates the given user if it doesn't already exist. Ensures the
+    role is set to the given role in all cases.
+
+    """
+
+    users = UserCollection(session)
+    user = users.by_username(username)
+
+    if not user:
+        user = users.add(
+            username=username,
+            password=random_token(),
+            role=role
+        )
+
+    # update the role in all cases, should it change
+    user.role = role
+
+    return user
+
+
+@attrs(auto_attribs=True)
+class RolesMapping(object):
+    """ Takes a role mapping and provides access to it.
+
+    A role mapping maps a onegov-cloud role to an LDAP role. For example:
+
+        admins -> ACC_OneGovCloud_User
+
+    The mapping comes in multiple
+    levels. For example:
+
+       * "__default__"         Fallback for all applications
+       * "onegov_org"          Namespace specific config
+       * "onegov_org/govikon"  Application specific config
+
+    Each level contains a group name for admins, editors and members.
+    See onegov.yml.example for an illustrated example.
+
+    """
+
+    roles: Dict[str, Dict[str, str]]
+
+    def app_specific(self, app):
+        if app.application_id in self.roles:
+            return self.roles[app.application_id]
+
+        if app.namespace in self.roles:
+            return self.roles[app.namespace]
+
+        return self.roles.get('__default__')
+
+
+@attrs(auto_attribs=True)
+class LDAPAttributes(object):
+    """ Holds the LDAP server-specific attributes. """
+
+    # the name of the Distinguished Name (DN) attribute
+    name: str
+
+    # the name of the e-mails attribute (returns a list of emails)
+    mails: str
+
+    # the name of the group membership attribute (returns a list of groups)
+    groups: str
+
+    @classmethod
+    def from_cfg(cls, cfg):
+        return cls(
+            name=cfg.get('name_attribute', 'cn'),
+            mails=cfg.get('mails_attribute', 'mail'),
+            groups=cfg.get('groups_attribute', 'memberOf'),
+        )
+
+
 @attrs(auto_attribs=True)
 class LDAPKerberosProvider(AuthenticationProvider, metadata=ProviderMetadata(
-    name='ldap_kerberos', title=_("LDAP Kerberos")
-)):
+        name='ldap_kerberos', title=_("LDAP Kerberos"))):
+
     """ Classic LDAP provider using python-ldap, combined with kerberos
 
     """
@@ -142,20 +236,10 @@ class LDAPKerberosProvider(AuthenticationProvider, metadata=ProviderMetadata(
     kerberos: KerberosClient = attrib()
 
     # LDAP attributes configuration
-    name_attribute: str
-    mails_attribute: str
-    groups_attribute: str
+    attributes: LDAPAttributes = attrib()
 
-    # Role mapping, with three levels of keys. For example:
-    #
-    #   * "__default__"         Fallback for all applications
-    #   * "onegov_org"          Namespace specific config
-    #   * "onegov_org/govikon"  Application specific config
-    #
-    # Each level contains a group name for admins, editors and members.
-    # See onegov.yml.example for an illustrated example.
-    #
-    roles: Dict[str, Dict[str, str]]
+    # Roles configuration
+    roles: RolesMapping = attrib()
 
     # Optional suffix that is removed from the Kerberos username if present
     suffix: Optional[str] = None
@@ -168,16 +252,7 @@ class LDAPKerberosProvider(AuthenticationProvider, metadata=ProviderMetadata(
             return None
 
         # LDAP configuration
-        ldap = LDAPClient(
-            url=cfg.get('ldap_url', None),
-            username=cfg.get('ldap_username', None),
-            password=cfg.get('ldap_password', None),
-        )
-
-        try:
-            ldap.try_configuration()
-        except Exception as e:
-            raise ValueError(f"LDAP config error: {e}")
+        ldap = spawn_ldap_client(**cfg)
 
         # Kerberos configuration
         kerberos = KerberosClient(
@@ -185,25 +260,18 @@ class LDAPKerberosProvider(AuthenticationProvider, metadata=ProviderMetadata(
             hostname=cfg.get('kerberos_hostname', None),
             service=cfg.get('kerberos_service', None))
 
-        try:
-            kerberos.try_configuration()
-        except Exception as e:
-            raise ValueError(f"Kerberos config error: {e}")
-
         return cls(
             ldap=ldap,
             kerberos=kerberos,
-            name_attribute=cfg.get('name_attribute', 'cn'),
-            mails_attribute=cfg.get('mails_attribute', 'mail'),
-            groups_attribute=cfg.get('groups_attribute', 'memberOf'),
+            attributes=LDAPAttributes.from_cfg(cfg),
             suffix=cfg.get('suffix', None),
-            roles=cfg.get('roles', {
+            roles=RolesMapping(cfg.get('roles', {
                 '__default__': {
                     'admins': 'admins',
                     'editors': 'editors',
                     'members': 'members'
                 }
-            })
+            }))
         )
 
     def button_text(self, request):
@@ -244,23 +312,14 @@ class LDAPKerberosProvider(AuthenticationProvider, metadata=ProviderMetadata(
             'user': user.username
         }))
 
-    def app_specific_roles(self, app):
-        if app.application_id in self.roles:
-            return self.roles[app.application_id]
-
-        if app.namespace in self.roles:
-            return self.roles[app.namespace]
-
-        return self.roles.get('__default__')
-
     def request_authorization(self, request, username):
 
         if self.suffix:
             username = rchop(username, self.suffix)
 
         entries = self.ldap.search(
-            query=f'({self.name_attribute}={username})',
-            attributes=[self.mails_attribute, self.groups_attribute])
+            query=f'({self.attributes.name}={username})',
+            attributes=[self.attributes.mails, self.attributes.groups])
 
         if not entries:
             log.warning(f"No LDAP entries for {username}")
@@ -273,12 +332,12 @@ class LDAPKerberosProvider(AuthenticationProvider, metadata=ProviderMetadata(
 
         attributes = next(v for v in entries.values())
 
-        mails = attributes[self.mails_attribute]
+        mails = attributes[self.attributes.mails]
         if not mails:
             log.warning(f"No e-mail addresses for {username}")
             return None
 
-        groups = attributes[self.groups_attribute]
+        groups = attributes[self.attributes.groups]
         if not groups:
             log.warning(f"No groups for {username}")
             return None
@@ -287,7 +346,7 @@ class LDAPKerberosProvider(AuthenticationProvider, metadata=ProviderMetadata(
         groups = {g.lower().split(',')[0].split('cn=')[-1] for g in groups}
 
         # get the roles
-        roles = self.app_specific_roles(request.app)
+        roles = self.roles.app_specific(request.app)
 
         if not roles:
             log.warning(f"No role map for {request.app.application_id}")
@@ -303,23 +362,7 @@ class LDAPKerberosProvider(AuthenticationProvider, metadata=ProviderMetadata(
             log.warning(f"No authorized group for {username}")
             return None
 
-        return self.ensure_user(
+        return ensure_user(
             session=request.session,
             username=mails[0],
             role=role)
-
-    def ensure_user(self, session, username, role):
-        users = UserCollection(session)
-        user = users.by_username(username)
-
-        if not user:
-            user = users.add(
-                username=username,
-                password=random_token(),
-                role=role
-            )
-
-        # update the role in all cases, should it change
-        user.role = role
-
-        return user

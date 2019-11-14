@@ -46,7 +46,7 @@ class Auth(object):
 
     @classmethod
     def from_request(cls, request, to='/', skip=False, signup_token=None):
-        return cls.from_app(request.app, to, skip, signup_token)
+        return cls(request.app, to, skip, signup_token)
 
     @classmethod
     def from_request_path(cls, request, skip=False, signup_token=None):

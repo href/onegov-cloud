@@ -83,7 +83,7 @@ def app(request, glauth_binary, postgres_dsn, temporary_path, redis_url,
 
     @App.path(path='/auth', model=Auth)
     def get_auth(request, app):
-        return Auth(request.session, app.application_id)
+        return Auth(app)
 
     @App.view(model=Auth, permission=Public, name='login')
     def view_auth(self, request):

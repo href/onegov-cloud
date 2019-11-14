@@ -18,15 +18,16 @@ class Auth(object):
 
     identity_class = morepath.Identity
 
-    def __init__(self, session, application_id, to='/', skip=False,
-                 signup_token=None, signup_token_secret=None, **kwargs):
-        assert application_id  # may not be empty!
+    def __init__(self, app, to='/', skip=False,
+                 signup_token=None, signup_token_secret=None):
 
-        self.session = session
-        self.application_id = application_id
+        self.app = app
+        self.session = app.session()
+        self.application_id = app.application_id
 
         self.signup_token = signup_token
-        self.signup_token_secret = signup_token_secret
+        self.signup_token_secret = signup_token_secret \
+            or getattr(app, 'identity_secret', None)
 
         # never redirect to an external page, this might potentially be used
         # to trick the user into thinking he's on our page after entering his
@@ -38,27 +39,10 @@ class Auth(object):
         self.factors = {}
 
         for type, cls in SECOND_FACTORS.items():
-            obj = cls(**kwargs)
+            obj = cls(**cls.args_from_app(app))
 
             if obj.is_configured():
                 self.factors[type] = obj
-
-    @classmethod
-    def from_app(cls, app, to='/', skip=False, signup_token=None):
-        kwargs = {}
-
-        for factor in SECOND_FACTORS.values():
-            kwargs.update(factor.args_from_app(app))
-
-        return cls(
-            session=app.session(),
-            application_id=app.application_id,
-            to=to,
-            skip=skip,
-            signup_token=signup_token,
-            signup_token_secret=getattr(app, 'identity_secret', None),
-            **kwargs,
-        )
 
     @classmethod
     def from_request(cls, request, to='/', skip=False, signup_token=None):

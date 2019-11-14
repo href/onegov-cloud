@@ -21,9 +21,19 @@ class DummyPostData(dict):
         return v
 
 
+class DummyApp(object):
+
+    def __init__(self, session, application_id='my-app'):
+        self._session = session
+        self.application_id = application_id
+
+    def session(self):
+        return self._session
+
+
 def test_auth_login(session):
     UserCollection(session).add('AzureDiamond', 'hunter2', 'irc-user')
-    auth = Auth(session=session, application_id='my-app')
+    auth = Auth(DummyApp(session))
 
     assert not auth.authenticate(username='AzureDiamond', password='hunter1')
     assert not auth.authenticate(username='AzureDiamonb', password='hunter2')
@@ -40,7 +50,7 @@ def test_auth_login_inactive(session):
     user = UserCollection(session).add(
         'AzureDiamond', 'hunter2', 'irc-user', active=False)
 
-    auth = Auth(session=session, application_id='my-app')
+    auth = Auth(DummyApp(session))
 
     assert not auth.authenticate(username='AzureDiamond', password='hunter2')
 
@@ -62,8 +72,7 @@ def test_auth_login_yubikey(session):
     )
 
     auth = Auth(
-        session=session,
-        application_id='my-app',
+        app=DummyApp(session),
         yubikey_client_id='abc',
         yubikey_secret_key='dGhlIHdvcmxkIGlzIGNvbnRyb2xsZWQgYnkgbGl6YXJkcyE='
     )
@@ -107,10 +116,7 @@ def test_auth_login_unnecessary_yubikey(session):
         role='admin'
     )
 
-    auth = Auth(
-        session=session,
-        application_id='my-app',
-    )
+    auth = Auth(DummyApp(session))
 
     # simply ignore the second factor
     assert auth.authenticate(
@@ -122,7 +128,7 @@ def test_auth_login_unnecessary_yubikey(session):
 
 def test_auth_logging(capturelog, session):
     UserCollection(session).add('AzureDiamond', 'hunter2', 'irc-user')
-    auth = Auth(session=session, application_id='my-app')
+    auth = Auth(DummyApp(session))
 
     # XXX do not change the following messages, as they are used that way in
     # fail2ban already and should remain exactly the same
@@ -155,7 +161,7 @@ def test_auth_integration(session, redis_url):
 
     @App.path(path='/auth', model=Auth)
     def get_auth():
-        return Auth(session, application_id='my_app', to='https://abc.xyz/go')
+        return Auth(DummyApp(session), to='https://abc.xyz/go')
 
     @App.view(model=Auth)
     def view_auth(self, request):
@@ -204,7 +210,7 @@ def test_auth_integration(session, redis_url):
 
 
 def test_signup_token_data(session):
-    auth = Auth(session, 'foo', signup_token_secret='bar')
+    auth = Auth(DummyApp(session, 'foo'), signup_token_secret='bar')
     assert auth.new_signup_token('admin')
 
     token = auth.new_signup_token('admin', max_age=1)
@@ -218,7 +224,7 @@ def test_signup_token_data(session):
 
 
 def test_signup_max_uses(session):
-    auth = Auth(session, 'foo', signup_token_secret='bar')
+    auth = Auth(DummyApp(session, 'foo'), signup_token_secret='bar')
     auth.signup_token = auth.new_signup_token('admin', max_age=10, max_uses=1)
 
     foo = auth.register(
@@ -246,7 +252,7 @@ def test_signup_max_uses(session):
 
 
 def test_signup_expired(session):
-    auth = Auth(session, 'foo', signup_token_secret='bar')
+    auth = Auth(DummyApp(session, 'foo'), signup_token_secret='bar')
     auth.signup_token = auth.new_signup_token('admin', max_age=1, max_uses=2)
 
     foo = auth.register(

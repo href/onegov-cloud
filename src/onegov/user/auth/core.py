@@ -99,7 +99,7 @@ class Auth(object):
         else:
             raise NotImplementedError
 
-    def authenticate(self, username, password,
+    def authenticate(self, request, username, password,
                      client='unknown', second_factor=None):
         """ Takes the given username and password and matches them against the
         users collection. This does not login the user, use :meth:`login_to` to
@@ -121,7 +121,25 @@ class Auth(object):
 
         """
 
-        user = self.users.by_username_and_password(username, password)
+        from onegov.user.integration import UserApp  # circular import
+
+        user = None
+        source = None
+
+        if isinstance(self.app, UserApp):
+            for provider in self.app.providers:
+                if provider.kind == 'integrated':
+                    user = provider.authenticate_user(
+                        request=request,
+                        username=username,
+                        password=password)
+
+                if user:
+                    source = user.source
+                    break
+
+        # fall back to default, only if it didn't work otherwise
+        user = user or self.users.by_username_and_password(username, password)
 
         def fail():
             log.info(f"Failed login by {client} ({username})")
@@ -133,14 +151,16 @@ class Auth(object):
         if not user.active:
             return fail()
 
-        if not self.is_valid_second_factor(user, second_factor):
-            return fail()
+        # only built-in users currently support second factors
+        if source is None:
+            if not self.is_valid_second_factor(user, second_factor):
+                return fail()
 
         # users from external authentication providers may not login using
         # a regular login - if for some reason the source is false (if the
         # authentication system is switched) - the source column has to be
         # set to NULL
-        if user.source is not None:
+        if user.source != source:
             return fail()
 
         log.info(f"Successful login by {client} ({username})")
@@ -183,6 +203,7 @@ class Auth(object):
         """
 
         user = self.authenticate(
+            request=request,
             username=username,
             password=password,
             client=request.client_addr,

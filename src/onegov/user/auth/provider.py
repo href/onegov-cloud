@@ -259,6 +259,8 @@ class RolesMapping(object):
         Returns the matched group or None.
 
         """
+        groups = {g.lower() for g in groups}
+
         if roles['admins'].lower() in groups:
             return 'admin'
 
@@ -298,7 +300,7 @@ class LDAPAttributes(object):
 
 
 @attrs(auto_attribs=True)
-class LDAPGenericProvider(
+class LDAPProvider(
         IntegratedAuthenticationProvider, metadata=ProviderMetadata(
             name='ldap', title=_("LDAP"))):
 
@@ -360,7 +362,7 @@ class LDAPGenericProvider(
             })),
         )
 
-    def hint(self):
+    def hint(self, request):
         return self.custom_hint
 
     def authenticate_user(self, request, username, password):
@@ -379,12 +381,12 @@ class LDAPGenericProvider(
 
         # onegov-cloud uses the e-mail as username, therefore we need to query
         # LDAP to get the designated name (actual LDAP username)
-        query = f"({self.attrs.mails}={username})"
-        attrs = (self.attrs.groups, )
+        query = f"({self.attributes.mails}={username})"
+        attrs = (self.attributes.groups, )
 
         # we query the groups at the same time, so if we have a password
         # match we are all ready to go
-        entries = self.client.search(query, attrs)
+        entries = self.ldap.search(query, attrs)
 
         if not entries:
             log.warning(f"No LDAP user with e-mail {username}")
@@ -395,7 +397,7 @@ class LDAPGenericProvider(
             log.warning(f"All but the first user will be ignored")
 
         for name, attrs in entries.items():
-            groups = attrs[self.attrs.groups]
+            groups = attrs[self.attributes.groups]
 
             # do not iterate over all entries, or this becomes a very
             # handy way to check a single password against multiple
@@ -407,7 +409,7 @@ class LDAPGenericProvider(
         # additional measures never hurt.
         time.sleep(0.25)
 
-        if not self.client.compare(name, self.attrs.password, password):
+        if not self.ldap.compare(name, self.attributes.password, password):
             log.warning(f"Wrong password for {username} ({name})")
             return
 

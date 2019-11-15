@@ -71,11 +71,11 @@ def test_auth_login_yubikey(session):
         }
     )
 
-    auth = Auth(
-        app=DummyApp(session),
-        yubikey_client_id='abc',
-        yubikey_secret_key='dGhlIHdvcmxkIGlzIGNvbnRyb2xsZWQgYnkgbGl6YXJkcyE='
-    )
+    app = DummyApp(session)
+    app.yubikey_client_id = 'abc'
+    app.yubikey_secret_key = 'dGhlIHdvcmxkIGlzIGNvbnRyb2xsZWQgYnkgbGl6YXJkcyE='
+
+    auth = Auth(app)
 
     assert not auth.authenticate(
         username='admin@example.org', password='p@ssw0rd')

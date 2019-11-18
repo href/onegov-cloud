@@ -289,6 +289,9 @@ class LDAPAttributes(object):
     # the name of the password attribute
     password: str
 
+    # the name of the uid attribute
+    uid: str
+
     @classmethod
     def from_cfg(cls, cfg):
         return cls(
@@ -296,6 +299,7 @@ class LDAPAttributes(object):
             mails=cfg.get('mails_attribute', 'mail'),
             groups=cfg.get('groups_attribute', 'memberOf'),
             password=cfg.get('password_attribute', 'userPassword'),
+            uid=cfg.get('uid_attribute', 'uid'),
         )
 
 
@@ -382,14 +386,26 @@ class LDAPProvider(
         # onegov-cloud uses the e-mail as username, therefore we need to query
         # LDAP to get the designated name (actual LDAP username)
         query = f"({self.attributes.mails}={username})"
-        attrs = (self.attributes.groups, )
+        attrs = (self.attributes.groups, self.attributes.mails)
 
         # we query the groups at the same time, so if we have a password
         # match we are all ready to go
         entries = self.ldap.search(query, attrs)
 
+        # as a fall back, we try to query the uid
         if not entries:
-            log.warning(f"No LDAP user with e-mail {username}")
+            query = f"({self.attributes.uid}={username})"
+            entries = self.ldap.search(query, attrs)
+
+            # if successful we need the e-mail address
+            for name, attrs in (entries or {}).items():
+                username = attrs[self.attributes.mails][0]
+
+                break
+
+        # then, we give up
+        if not entries:
+            log.warning(f"No LDAP user with uid ore-mail {username}")
             return
 
         if len(entries) > 1:

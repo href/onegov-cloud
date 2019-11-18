@@ -182,3 +182,14 @@ def test_generic_ldap(client):
 
     assert client.get('/private', status=200)
     assert client.get('/secret', status=200)
+
+    # the uid can be used alternatively
+    assert 'success' in client.post('/auth/login', {
+        'username': 'admin',
+        'password': 'hunter2'
+    })
+
+    assert 'success' in client.post('/auth/login', {
+        'username': 'editor',
+        'password': 'hunter2'
+    })

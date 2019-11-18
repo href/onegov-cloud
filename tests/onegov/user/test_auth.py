@@ -35,10 +35,12 @@ def test_auth_login(session):
     UserCollection(session).add('AzureDiamond', 'hunter2', 'irc-user')
     auth = Auth(DummyApp(session))
 
-    assert not auth.authenticate(username='AzureDiamond', password='hunter1')
-    assert not auth.authenticate(username='AzureDiamonb', password='hunter2')
-
-    user = auth.authenticate(username='AzureDiamond', password='hunter2')
+    assert not auth.authenticate(
+        request=None, username='AzureDiamond', password='hunter1')
+    assert not auth.authenticate(
+        request=None, username='AzureDiamonb', password='hunter2')
+    user = auth.authenticate(
+        request=None, username='AzureDiamond', password='hunter2')
 
     identity = auth.as_identity(user)
     assert identity.userid == 'azurediamond'
@@ -52,12 +54,14 @@ def test_auth_login_inactive(session):
 
     auth = Auth(DummyApp(session))
 
-    assert not auth.authenticate(username='AzureDiamond', password='hunter2')
+    assert not auth.authenticate(
+        request=None, username='AzureDiamond', password='hunter2')
 
     user.active = True
     transaction.commit()
 
-    assert auth.authenticate(username='AzureDiamond', password='hunter2')
+    assert auth.authenticate(
+        request=None, username='AzureDiamond', password='hunter2')
 
 
 def test_auth_login_yubikey(session):
@@ -78,8 +82,9 @@ def test_auth_login_yubikey(session):
     auth = Auth(app)
 
     assert not auth.authenticate(
-        username='admin@example.org', password='p@ssw0rd')
+        request=None, username='admin@example.org', password='p@ssw0rd')
     assert not auth.authenticate(
+        request=None,
         username='admin@example.org',
         password='p@ssw0rd',
         second_factor='xxxxxxbcgujhingjrdejhgfnuetrgigvejhhgbkugded'
@@ -89,6 +94,7 @@ def test_auth_login_yubikey(session):
         verify.return_value = False
 
         assert not auth.authenticate(
+            request=None,
             username='admin@example.org',
             password='p@ssw0rd',
             second_factor='ccccccbcgujhingjrdejhgfnuetrgigvejhhgbkugded'
@@ -98,6 +104,7 @@ def test_auth_login_yubikey(session):
         verify.return_value = True
 
         user = auth.authenticate(
+            request=None,
             username='admin@example.org',
             password='p@ssw0rd',
             second_factor='ccccccbcgujhingjrdejhgfnuetrgigvejhhgbkugded'
@@ -120,6 +127,7 @@ def test_auth_login_unnecessary_yubikey(session):
 
     # simply ignore the second factor
     assert auth.authenticate(
+        request=None,
         username='admin@example.org',
         password='p@ssw0rd',
         second_factor='ccccccbcgujhingjrdejhgfnuetrgigvejhhgbkugded'
@@ -133,19 +141,22 @@ def test_auth_logging(capturelog, session):
     # XXX do not change the following messages, as they are used that way in
     # fail2ban already and should remain exactly the same
     capturelog.handler.records.clear()
-    auth.authenticate(username='AzureDiamond', password='hunter1')
+    auth.authenticate(
+        request=None, username='AzureDiamond', password='hunter1')
     assert capturelog.records()[0].message \
         == "Failed login by unknown (AzureDiamond)"
 
     capturelog.handler.records.clear()
     auth.authenticate(
-        username='AzureDiamond', password='hunter1', client='127.0.0.1')
+        request=None, username='AzureDiamond', password='hunter1',
+        client='127.0.0.1')
     assert capturelog.records()[0].message \
         == "Failed login by 127.0.0.1 (AzureDiamond)"
 
     capturelog.handler.records.clear()
     auth.authenticate(
-        username='AzureDiamond', password='hunter2', client='127.0.0.1')
+        request=None, username='AzureDiamond', password='hunter2',
+        client='127.0.0.1')
     assert capturelog.records()[0].message \
         == "Successful login by 127.0.0.1 (AzureDiamond)"
 

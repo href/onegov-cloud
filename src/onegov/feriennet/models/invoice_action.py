@@ -49,6 +49,7 @@ class InvoiceAction(object):
                 q = self.session.query(InvoiceItem)
                 q = q.filter(InvoiceItem.id != item.id)
                 q = q.filter(InvoiceItem.family == item.family)
+                q = q.filter(InvoiceItem.family.like('manual-%'))
 
                 yield from q
 

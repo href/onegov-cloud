@@ -774,3 +774,16 @@ def drop_deadline_date(context):
         """)
 
     context.operations.drop_column('periods', 'deadline_date')
+
+
+@upgrade_task('Mark all-inclusive payments')
+def mark_all_inclusive_payments(context):
+    context.session.execute(f"""
+        UPDATE invoice_items
+        SET family = CASE
+            WHEN "text" = 'Ferienpass' THEN 'all-inclusive'
+            WHEN "text" = 'Passeport' THEN 'all-inclusive'
+            ELSE family
+        END
+        WHERE family IS NULL
+    """)

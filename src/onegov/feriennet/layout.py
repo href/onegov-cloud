@@ -480,7 +480,7 @@ class BillingCollectionLayout(DefaultLayout):
                     WHERE source IS NOT NULL and source != 'xml'
                 ) AS has_online_payments
             FROM invoice_items
-            WHERE family IS NOT NULL
+            WHERE family IS NOT NULL and family LIKE 'manual-%'
             GROUP BY family, text
             ORDER BY text
         """)

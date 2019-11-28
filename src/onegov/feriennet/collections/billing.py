@@ -342,5 +342,6 @@ class BookingInvoiceBridge(object):
                         text=all_inclusive_booking_text,
                         unit=self.period.booking_cost,
                         quantity=1,
-                        flush=False
+                        flush=False,
+                        family='all-inclusive',
                     )

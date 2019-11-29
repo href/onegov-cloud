@@ -5,10 +5,11 @@ from onegov.activity.models.age_barrier import AgeBarrier
 from onegov.activity.models.booking import Booking
 from onegov.activity.models.occasion import Occasion
 from onegov.core.orm import Base
+from onegov.core.orm.sql import as_selectable
 from onegov.core.orm.mixins import TimestampMixin
 from onegov.core.orm.types import UUID, JSON
 from sqlalchemy import Boolean
-from sqlalchemy import case, desc, not_, distinct, func
+from sqlalchemy import case, desc, not_, distinct, func, select, and_
 from sqlalchemy import CheckConstraint
 from sqlalchemy import column
 from sqlalchemy import Column
@@ -295,6 +296,58 @@ class Period(Base, TimestampMixin):
     def booking_limit(self):
         """ Returns the max_bookings_per_attendee limit if it applies. """
         return self.all_inclusive and self.max_bookings_per_attendee
+
+    def last_minute_booking_cost(self, occasion, attendee_id=None):
+        """ Returns how much a last minute booking will cost. """
+
+        assert self.finalized, """
+            This feature is meant to be used for finalzed periods only
+        """
+
+        cost = occasion.cost or 0
+
+        # In an all-inclusive period, the booking cost has to be paid once
+        # for all bookings. We check if the booking cost has been billed
+        # already, before adding it to the price. We don't care if the cost
+        # has actually been paid, since we don't want to force the user to
+        # pay when a last minute booking is done. Only if he hasn't done so
+        # before does that happen.
+        if self.all_inclusive and attendee_id:
+            stmt = as_selectable("""
+                SELECT
+                    period_id,                  -- UUID
+                    attendees.id AS attendee_id -- UUID
+                FROM
+                    invoice_items
+
+                LEFT JOIN attendees
+                  ON "group" = attendees.name
+
+                LEFT JOIN invoices
+                  ON invoice_id = invoices.id
+
+                WHERE family = 'all-inclusive'
+            """)
+
+            query = select(stmt.c).where(and_(
+                stmt.c.attendee_id == attendee_id,
+                stmt.c.period_id == self.id
+            ))
+
+            if not object_session(self).execute(query).first():
+                cost += self.booking_cost
+
+        # If no attendee is given, we assume it's a new attendee, which would
+        # have to pay the all-inclusive booking cost as a result.
+        if self.all_inclusive and not attendee_id:
+            cost += self.booking_cost or 0
+
+        # In a non all-inclusive scenario we ask the user to pay, unless the
+        # organizer gets the money directly.
+        if not self.all_inclusive and not self.pay_organiser_directly:
+            cost += self.booking_cost or 0
+
+        return cost or 0
 
     def as_local_datetime(self, day):
         return sedate.standardize_date(

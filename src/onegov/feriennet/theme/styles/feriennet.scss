@@ -2486,11 +2486,11 @@ $booking-left-margin: 2rem;
     Group invites
 */
 .occasion-panel {
-    border: 4px solid $gray;
-    border-radius: 2px;
+
+    border: 1px solid $gray;
     margin-bottom: 1rem;
     max-width: $max-line-width;
-    padding: .5rem 1rem;
+    padding: .5rem 0 1rem 1rem;
 
     .call-to-action {
         margin-bottom: 0;
@@ -2514,6 +2514,74 @@ $booking-left-margin: 2rem;
 
         .state + .factoids + .factoids.right-align {
             top: 2.35rem;
+        }
+    }
+}
+
+.group-buttons {
+    display: flex;
+    justify-content: space-between;
+    width: $max-line-width;
+
+    button {
+        border-radius: 5px;
+        display: block;
+        text-align: left;
+        width: 50%;
+    }
+
+    ul + button {
+        margin-left: 1rem;
+    }
+
+    li {
+        padding: .5rem .75rem;
+
+        & + li {
+            margin-top: 1px dashed $gray-light;
+        }
+    }
+}
+
+.with-icon {
+    display: flex;
+
+    > div:first-child {
+        width: 30px;
+    }
+}
+
+.with-margin {
+    margin-bottom: 1rem;
+}
+
+.inline-top-bar {
+    background: $gray-pastel;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    max-width: $max-line-width;
+    padding-left: .5rem;
+    position: relative;
+
+    h3 {
+        display: inline-block;
+    }
+
+    button {
+        border-radius: 5px;
+        margin-top: .25rem;
+        min-width: 12rem;
+        padding-bottom: .5rem !important;
+        padding-top: .5rem !important;
+        position: absolute !important;
+        right: .25rem;
+    }
+
+    li {
+        padding: .5rem .75rem;
+
+        & + li {
+            border-top: 1px dashed $gray;
         }
     }
 }

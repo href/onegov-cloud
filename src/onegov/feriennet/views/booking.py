@@ -21,7 +21,7 @@ from onegov.feriennet.views.shared import users_for_select_element
 from onegov.user import User
 from purl import URL
 from sortedcontainers import SortedList
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, not_
 from sqlalchemy.orm import contains_eager
 from uuid import UUID
 
@@ -523,13 +523,16 @@ def view_group_invite(self, request):
     occasion = self.occasion
     attendees_count = len(self.attendees)
 
-    own_children = set(
-        a.id for a in request.session.query(Attendee.id)
-        .filter_by(username=request.current_username)
-    )
+    # to be made available to the admin (user switching)
+    current_username = request.current_username
 
-    def may_execute_action(booking):
-        return booking.attendee_id in own_children
+    existing = [a for a, b in self.attendees if a.username == current_username]
+    external = [a for a, b in self.attendees if a.username != current_username]
+    possible = [
+        a for a in request.session.query(Attendee)
+        .filter_by(username=current_username)
+        .filter(not_(Attendee.id.in_(tuple(a.id for a in existing))))
+    ]
 
     def group_action(booking, action):
         assert action in ('join', 'leave')
@@ -568,7 +571,9 @@ def view_group_invite(self, request):
         'model': self,
         'group_action': group_action,
         'wrap_occasion_link': request.return_here,
-        'may_execute_action': may_execute_action,
+        'existing': existing,
+        'external': external,
+        'possible': possible,
     }
 
 

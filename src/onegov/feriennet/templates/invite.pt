@@ -26,12 +26,10 @@
             This group is from an inactive period.
         </div>
 
-        <h2 i18n:translate>Children</h2>
-
         <div class="inline-top-bar">
-            <h3 i18n:translate>
-                Own 
-            </h3>
+            <h2 class="h3-size" i18n:translate>
+                Own Children
+            </h2>
             <button href="#" data-dropdown="add-possible" aria-controls="add-possible" aria-expanded="false" class="button dropdown small secondary">
                 <i class="fa fa-fw fa-plus-circle" aria-hidden="true"></i>
                 <tal:b i18n:translate>
@@ -68,10 +66,10 @@
         </ul>
 
         <div class="inline-top-bar">
-            <h3 i18n:translate>
-                Other 
-            </h3>
-            <button href="#" class="button small success">
+            <h2 class="h3-size" i18n:translate>
+                Other Children
+            </h2>
+            <button href="#" class="button small secondary">
                 <i class="fa fa-fw fa-envelope" aria-hidden="true"></i>
                 <tal:b i18n:translate>
                     Invite other children

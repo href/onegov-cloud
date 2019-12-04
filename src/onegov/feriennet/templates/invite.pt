@@ -38,7 +38,7 @@
             </button>
             <ul id="add-possible" data-dropdown-content class="f-dropdown" aria-hidden="true">
                 <li tal:repeat="attendee possible">
-                    ${attendee.gender == 'male' and '👦' or '👧'} ${attendee.name}
+                    <tal:b replace="structure group_action(attendee, 'join')(layout)" />
                 </li>
                 <li i18n:translate>
                     Add new own child

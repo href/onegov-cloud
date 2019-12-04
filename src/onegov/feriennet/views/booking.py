@@ -534,7 +534,16 @@ def view_group_invite(self, request):
         .filter(not_(Attendee.id.in_(tuple(a.id for a in existing))))
     ]
 
-    def group_action(booking, action):
+    possible_bookings = {
+        b.attendee_id: b for b in request.session.query(Booking)
+        .filter_by(username=current_username)
+        .filter_by(occasion_id=occasion.id)
+        .filter(Booking.attendee_id.in_(
+            tuple(a.id for a in possible)
+        ))
+    }
+
+    def group_action(attendee, action):
         assert action in ('join', 'leave')
 
         if attendees_count == 1 and action == 'leave':
@@ -552,12 +561,14 @@ def view_group_invite(self, request):
                 ),
             )
 
+        booking = possible_bookings[attendee.id]
+
         url = URL(request.link(self, action))\
             .query_param('booking_id', booking.id)\
             .as_string()
 
         return Link(
-            text=(action == 'join' and _("Join Group") or _("Leave Group")),
+            text=attendee.gender == 'male' and '👦' or '👧' + attendee.name,
             url=layout.csrf_protected_url(url),
             traits=traits
         )

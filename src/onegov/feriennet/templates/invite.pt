@@ -66,7 +66,7 @@
             None of own children in group.
         </p>
 
-        <ul tal:condition="existing" class="dense with-margin">
+        <ul tal:condition="existing" class="dense with-margin own-children">
             <li tal:repeat="attendee existing">
                 <div class="with-icon with-small-margin">
                     <div>${attendee.gender == 'male' and '👦' or '👧'}</div>
@@ -95,7 +95,7 @@
                 No other children in group
             </tal:b>
 
-            <ul tal:condition="external" class="dense">
+            <ul tal:condition="external" class="dense other-children">
                 <li tal:repeat="attendee external" class="with-small-margin">
                     ${attendee.gender == 'male' and '👦' or '👧'} ${attendee.name}
                 </li>

@@ -41,7 +41,9 @@
                     <tal:b replace="structure group_action(attendee, 'join')(layout)" />
                 </li>
                 <li i18n:translate>
-                    Add new own child
+                    <a href="${signup}">
+                        Add new own child
+                    </a>
                 </li>
             </ul>
         </div>
@@ -59,7 +61,7 @@
                     <div>
                         <strong> ${attendee.name}</strong><br>
                         <i class="fa fa-fw fa-sign-out" aria-hidden="true"></i>
-                        <a href="#" i18n:translate>Leave group</a>
+                        <tal:b replace="structure group_action(attendee, 'leave')(layout)" />
                     </div>
                 </div>
             </li>
@@ -71,9 +73,9 @@
             </h2>
             <button href="#" class="button small secondary">
                 <i class="fa fa-fw fa-envelope" aria-hidden="true"></i>
-                <tal:b i18n:translate>
+                <a href="${mailto}" i18n:translate>
                     Invite other children
-                </tal:b>
+                </a>
             </button>
         </div>
         <p>

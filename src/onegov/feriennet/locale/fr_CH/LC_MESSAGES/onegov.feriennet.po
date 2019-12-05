@@ -1566,9 +1566,6 @@ msgstr ""
 msgid "None of own children in group."
 msgstr ""
 
-msgid "Leave group"
-msgstr ""
-
 msgid "Other Children"
 msgstr ""
 
@@ -2264,8 +2261,19 @@ msgstr ""
 msgid "Leave Group"
 msgstr "Quitter le groupe"
 
-msgid "Join Group"
-msgstr "Rejoindre le groupe"
+#, python-format
+msgid ""
+"Hi!\n"
+"\n"
+"My child wants to take part in the \"${title}\" activity and would be "
+"thrilled to go with a mate.\n"
+"\n"
+"You can add the activity to the wishlist of your child through the following "
+"link, if you are interested. This way the children have a better chance of "
+"getting a spot together:\n"
+"\n"
+"${link}"
+msgstr ""
 
 #, python-format
 msgid "Group for \"${title}\""

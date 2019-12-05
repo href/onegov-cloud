@@ -1,4 +1,5 @@
 import morepath
+import urllib.parse
 
 from collections import defaultdict, OrderedDict
 from datetime import date
@@ -534,13 +535,11 @@ def view_group_invite(self, request):
         .filter(not_(Attendee.id.in_(tuple(a.id for a in existing))))
     ]
 
-    possible_bookings = {
-        b.attendee_id: b for b in request.session.query(Booking)
-        .filter_by(username=current_username)
-        .filter_by(occasion_id=occasion.id)
-        .filter(Booking.attendee_id.in_(
-            tuple(a.id for a in possible)
-        ))
+    actionable_bookings = {
+        b.attendee_id: b for b in request.session.query(Booking).filter_by(
+            username=current_username,
+            occasion_id=occasion.id,
+        )
     }
 
     def group_action(attendee, action):
@@ -561,17 +560,50 @@ def view_group_invite(self, request):
                 ),
             )
 
-        booking = possible_bookings[attendee.id]
+        booking = actionable_bookings[attendee.id]
 
         url = URL(request.link(self, action))\
             .query_param('booking_id', booking.id)\
             .as_string()
 
+        if action == 'join':
+            text = (attendee.gender == 'male' and '👦' or '👧') \
+                + attendee.name
+        else:
+            text = _("Leave Group")
+
         return Link(
-            text=attendee.gender == 'male' and '👦' or '👧' + attendee.name,
+            text=text,
             url=layout.csrf_protected_url(url),
             traits=traits
         )
+
+    # https://stackoverflow.com/a/23847977/138103
+    subject = occasion.activity.title
+    message = _(
+        (
+            "Hi!\n\n"
+            "My child wants to take part in the \"${title}\" activity and "
+            "would be thrilled to go with a mate.\n\n"
+            "You can add the activity to the wishlist of your child through "
+            "the following link, if you are interested. This way the children "
+            "have a better chance of getting a spot together:\n\n"
+            "${link}"
+        ), mapping={
+            'title': occasion.activity.title,
+            'link': request.link(self)
+        }
+    )
+
+    mailto = "mailto:%20?subject={subject}&body={message}".format(
+        subject=urllib.parse.quote(subject),
+        message=urllib.parse.quote(request.translate(message))
+    )
+
+    signup = request.return_here(request.link(occasion, name='book'))
+
+    if not request.is_logged_in:
+        signup = layout.login_to_url(signup)
 
     return {
         'layout': layout,
@@ -581,10 +613,11 @@ def view_group_invite(self, request):
         'occasion': occasion,
         'model': self,
         'group_action': group_action,
-        'wrap_occasion_link': request.return_here,
+        'signup': signup,
         'existing': existing,
         'external': external,
         'possible': possible,
+        'mailto': mailto,
     }
 
 

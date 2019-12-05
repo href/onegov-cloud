@@ -2523,8 +2523,12 @@ $booking-left-margin: 2rem;
     display: flex;
 
     > div:first-child {
-        width: 30px;
+        width: 25px;
     }
+}
+
+.with-small-margin {
+    margin-bottom: 1rem;
 }
 
 .with-margin {
@@ -2532,8 +2536,7 @@ $booking-left-margin: 2rem;
 }
 
 .inline-top-bar {
-    background: $gray-pastel;
-    border-radius: 5px;
+    border-bottom: 2px solid $primary-color;
     margin-bottom: 1rem;
     max-width: $max-line-width;
     padding-left: .5rem;
@@ -2561,12 +2564,8 @@ $booking-left-margin: 2rem;
         }
     }
 
-    li {
-        padding: .5rem .75rem;
-
-        & + li {
-            border-top: 1px dashed $gray;
-        }
+    li + li {
+        border-top: 1px dashed $gray;
     }
 }
 

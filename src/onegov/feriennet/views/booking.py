@@ -543,6 +543,10 @@ def view_group_invite(self, request):
     }
 
     def signup_url(attendee=None):
+        # we need a logged in user
+        if not request.is_logged_in:
+            return layout.login_to_url(request.link(self))
+
         # build the URL needed to book the occasion
         url = request.link(occasion, name='book')
 
@@ -563,11 +567,6 @@ def view_group_invite(self, request):
 
         # return to the current URL
         url = request.return_here(url)
-
-        # wrap the whole thing in a login URL if not yet logged in
-        # (it's a bit amazing that all this wrapping works ;))
-        if not request.is_logged_in:
-            url = layout.login_to_url(url)
 
         return url
 

@@ -30,22 +30,36 @@
             <h2 class="h3-size" i18n:translate>
                 Own Children
             </h2>
-            <button href="#" data-dropdown="add-possible" aria-controls="add-possible" aria-expanded="false" class="button dropdown small secondary">
-                <i class="fa fa-fw fa-plus-circle" aria-hidden="true"></i>
-                <tal:b i18n:translate>
-                    Add own child
-                </tal:b>
-            </button>
-            <ul id="add-possible" data-dropdown-content class="f-dropdown" aria-hidden="true">
-                <li tal:repeat="attendee possible">
-                    <tal:b replace="structure group_action(attendee, 'join')(layout)" />
-                </li>
-                <li i18n:translate>
-                    <a href="${signup}">
-                        Add new own child
-                    </a>
-                </li>
-            </ul>
+
+            <!--! Show a drop down if there's at least one child -->
+            <tal:b condition="possible or existing">
+                <button href="#" data-dropdown="add-possible" aria-controls="add-possible" aria-expanded="false" class="button dropdown small secondary">
+                    <i class="fa fa-fw fa-plus-circle" aria-hidden="true"></i>
+                    <tal:b i18n:translate>
+                        Add own child
+                    </tal:b>
+                </button>
+                <ul id="add-possible" data-dropdown-content class="f-dropdown" aria-hidden="true">
+                    <li tal:repeat="attendee possible">
+                        <tal:b replace="structure group_action(attendee, 'join')(layout)" />
+                    </li>
+                    <li i18n:translate>
+                        <a href="${signup_url()}">
+                            Add new own child
+                        </a>
+                    </li>
+                </ul>
+            </tal:b>
+
+            <!--! Show a simple button if there's no child yet -->
+            <tal:b condition="not possible and not existing">
+                <a href="${signup_url()}" class="button small secondary">
+                    <i class="fa fa-fw fa-plus-circle" aria-hidden="true"></i>
+                    <tal:b i18n:translate>
+                        Add own child
+                    </tal:b>
+                </a>
+            </tal:b>
         </div>
 
         <p tal:condition="not:existing" i18n:translate>
@@ -71,12 +85,12 @@
             <h2 class="h3-size" i18n:translate>
                 Other Children
             </h2>
-            <button href="#" class="button small secondary">
+            <a href="${mailto}" class="button small secondary">
                 <i class="fa fa-fw fa-envelope" aria-hidden="true"></i>
-                <a href="${mailto}" i18n:translate>
+                <tal:b>
                     Invite other children
-                </a>
-            </button>
+                </tal:b>
+            </a>
         </div>
         <p>
             <tal:b condition="not:external" i18n:translate>

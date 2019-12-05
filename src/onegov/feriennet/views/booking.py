@@ -542,6 +542,35 @@ def view_group_invite(self, request):
         )
     }
 
+    def signup_url(attendee=None):
+        # build the URL needed to book the occasion
+        url = request.link(occasion, name='book')
+
+        # preselect the attendee when booking the occasion, and join this group
+        if attendee:
+            url = URL(url)\
+                .query_param('attendee_id', attendee.id)\
+                .as_string()
+        else:
+            url = URL(url)\
+                .query_param('attendee_id', 'other')\
+                .as_string()
+
+        # preselect the group code
+        url = URL(url)\
+            .query_param('group_code', self.group_code)\
+            .as_string()
+
+        # return to the current URL
+        url = request.return_here(url)
+
+        # wrap the whole thing in a login URL if not yet logged in
+        # (it's a bit amazing that all this wrapping works ;))
+        if not request.is_logged_in:
+            url = layout.login_to_url(url)
+
+        return url
+
     def group_action(attendee, action):
         assert action in ('join', 'leave')
 
@@ -560,14 +589,18 @@ def view_group_invite(self, request):
                 ),
             )
 
-        booking = actionable_bookings[attendee.id]
+        if attendee.id in actionable_bookings:
+            booking = actionable_bookings[attendee.id]
 
-        url = URL(request.link(self, action))\
-            .query_param('booking_id', booking.id)\
-            .as_string()
+            url = URL(request.link(self, action))\
+                .query_param('booking_id', booking.id)\
+                .as_string()
+        else:
+            url = signup_url(attendee)
+            traits = ()
 
         if action == 'join':
-            text = (attendee.gender == 'male' and '👦' or '👧') \
+            text = (attendee.gender == 'male' and '👦 ' or '👧 ') \
                 + attendee.name
         else:
             text = _("Leave Group")
@@ -600,11 +633,6 @@ def view_group_invite(self, request):
         message=urllib.parse.quote(request.translate(message))
     )
 
-    signup = request.return_here(request.link(occasion, name='book'))
-
-    if not request.is_logged_in:
-        signup = layout.login_to_url(signup)
-
     return {
         'layout': layout,
         'title': _('Group for "${title}"', mapping={
@@ -613,7 +641,7 @@ def view_group_invite(self, request):
         'occasion': occasion,
         'model': self,
         'group_action': group_action,
-        'signup': signup,
+        'signup_url': signup_url,
         'existing': existing,
         'external': external,
         'possible': possible,

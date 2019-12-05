@@ -2519,31 +2519,6 @@ $booking-left-margin: 2rem;
     }
 }
 
-.group-buttons {
-    display: flex;
-    justify-content: space-between;
-    width: $max-line-width;
-
-    button {
-        border-radius: 5px;
-        display: block;
-        text-align: left;
-        width: 50%;
-    }
-
-    ul + button {
-        margin-left: 1rem;
-    }
-
-    li {
-        padding: .5rem .75rem;
-
-        & + li {
-            margin-top: 1px dashed $gray-light;
-        }
-    }
-}
-
 .with-icon {
     display: flex;
 
@@ -2568,7 +2543,7 @@ $booking-left-margin: 2rem;
         display: inline-block;
     }
 
-    button {
+    .button {
         border-radius: 5px;
         margin-top: .25rem;
         min-width: 15rem;

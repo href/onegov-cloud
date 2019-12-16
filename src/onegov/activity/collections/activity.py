@@ -312,7 +312,7 @@ class ActivityCollection(RangedPagination):
 
         if self.filter.weekdays:
             o = o.filter(
-                Occasion.weekdays.op('&&')(array(self.filter.weekdays)))
+                Occasion.weekdays.op('<@')(array(self.filter.weekdays)))
 
         if self.filter.available:
             conditions = []

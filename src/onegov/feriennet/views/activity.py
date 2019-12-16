@@ -25,6 +25,8 @@ from onegov.org.mail import send_ticket_mail
 from onegov.org.models import TicketMessage
 from onegov.core.elements import Link, Confirm, Intercooler
 from onegov.ticket import TicketCollection
+from purl import URL
+from sedate import dtrange, overlaps
 from sqlalchemy import desc
 from sqlalchemy.orm import contains_eager
 from webob import exc
@@ -306,6 +308,51 @@ def activity_min_cost(activity, request):
     return min(o.total_cost for o in occasions)
 
 
+def is_filtered(filters):
+    for links in filters.values():
+        for link in links:
+            if link.active:
+                return True
+
+    return False
+
+
+def adjust_filter_path(filters, suffix):
+
+    for links in filters.values():
+        for link in links:
+            link.attrs['href'] = link.attrs['ic-get-from'] = \
+                URL(link.attrs['href']).add_path_segment(suffix).as_string()
+
+
+def exclude_filtered_dates(activities, dates):
+    result = []
+
+    if not activities.filter.dateranges:
+        result = dates
+    else:
+        for dt in dates:
+            for s, e in activities.filter.dateranges:
+                if overlaps(dt.start.date(), dt.end.date(), s, e):
+                    result.append(dt)
+                    break
+
+    dates = result
+    result = []
+
+    if not activities.filter.weekdays:
+        result = dates
+    else:
+        for dt in dates:
+            for day in dtrange(dt.start, dt.end):
+                if day.weekday() not in activities.filter.weekdays:
+                    break
+            else:
+                result.append(dt)
+
+    return result
+
+
 @FeriennetApp.html(
     model=VacationActivityCollection,
     template='activities.pt',
@@ -340,28 +387,61 @@ def view_activities(self, request):
 
     filters = {k: v for k, v in filters.items() if v}
 
-    # true if at least one filter is active
-    filtered = next(
-        (
-            True
-            for links in filters.values()
-            for link in links
-            if link.active
-        ), False
-    )
-
     return {
         'activities': self.batch if show_activities else None,
         'layout': layout,
         'title': _("Activities"),
         'filters': filters,
-        'filtered': filtered,
+        'filtered': is_filtered,
         'period': active_period,
         'activity_ages': activity_ages,
         'activity_min_cost': activity_min_cost,
         'activity_spots': activity_spots,
         'current_location': request.link(
             self.by_page_range((0, self.pages[-1])))
+    }
+
+
+@FeriennetApp.html(
+    model=VacationActivityCollection,
+    template='activities-for-volunteers.pt',
+    permission=Public,
+    name='volunteers')
+def view_activities_for_volunteers(self, request):
+    active_period = request.app.active_period
+    show_activities = bool(active_period or request.is_organiser)
+
+    layout = VacationActivityCollectionLayout(self, request)
+    layout.breadcrumbs[-1].text = _("Join as a Volunteer")
+
+    filters = {}
+
+    if show_activities:
+        filters['tags'] = filter_tags(self, request)
+        filters['durations'] = filter_durations(self, request)
+
+        if active_period:
+            filters['weeks'] = filter_weeks(self, request)
+
+        filters['weekdays'] = filter_weekdays(self, request)
+        filters['municipalities'] = filter_municipalities(self, request)
+
+    filters = {k: v for k, v in filters.items() if v}
+    adjust_filter_path(filters, suffix='volunteers')
+
+    return {
+        'activities': self.batch if show_activities else None,
+        'layout': layout,
+        'title': _("Join as a Volunteer"),
+        'filters': filters,
+        'filtered': is_filtered(filters),
+        'period': active_period,
+        'activity_ages': activity_ages,
+        'activity_min_cost': activity_min_cost,
+        'activity_spots': activity_spots,
+        'exclude_filtered_dates': exclude_filtered_dates,
+        'current_location': request.link(
+            self.by_page_range((0, self.pages[-1])), name='volunteers')
     }
 
 

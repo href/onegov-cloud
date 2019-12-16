@@ -48,6 +48,7 @@ class ActivityFilter(object):
         'tags',
         'timelines',
         'weekdays',
+        'volunteers',
     )
 
     singular = {
@@ -128,6 +129,9 @@ class ActivityFilter(object):
     def adapt_durations(self, values):
         return set(int(v) for v in values)
 
+    def adapt_volunteers(self, values):
+        return set(v == 'yes' for v in values)
+
     def encode(self, key, value):
         if isinstance(value, str):
             return value
@@ -149,6 +153,9 @@ class ActivityFilter(object):
 
         if isinstance(value, UUID):
             return value.hex
+
+        if isinstance(value, bool):
+            return value and 'yes' or 'no'
 
         if isinstance(value, (tuple, list, set)):
             return [self.encode(key, v) for v in value]
@@ -274,6 +281,10 @@ class ActivityCollection(RangedPagination):
             # since we'd be looking for activities without occasions
             if conditions:
                 o = o.filter(or_(*conditions))
+
+        if self.filter.volunteers:
+            o = o.filter(Occasion.seeking_volunteers.in_(
+                self.filter.volunteers))
 
         if self.filter.period_ids:
             o = o.filter(Occasion.period_id.in_(self.filter.period_ids))

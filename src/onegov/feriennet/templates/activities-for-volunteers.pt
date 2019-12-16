@@ -5,7 +5,7 @@
     <tal:b metal:fill-slot="content">
         <div class="row">
             <div class="columns medium-8">
-                <div class="panel" tal:condition="not:filtered">
+                <div class="panel">
                     <span class="svg-icon svg-icon-small">
                         <metal:b use-macro="layout.svg['heart']" />
                     </span>
@@ -40,7 +40,7 @@
 
                                 <ul class="dense">
                                     <li tal:repeat="occasion activity.occasions">
-                                        <div class="factoids" tal:define="dates exclude_filtered_dates(layout.model, occasion.dates)" tal:condition="dates">
+                                        <div class="factoids" tal:define="dates exclude_filtered_dates(layout.model, occasion.dates)" tal:condition="occasion.seeking_volunteers and dates">
                                             <div class="dates">
                                                 <ul>
                                                     <li tal:repeat="date dates">
@@ -49,7 +49,7 @@
                                                 </ul>
                                             </div>
                                         </div>
-                                        <ul class="dense">
+                                        <ul class="dense needs">
                                             <li tal:repeat="need occasion.needs">
                                                 ${need.name}
                                             </li>

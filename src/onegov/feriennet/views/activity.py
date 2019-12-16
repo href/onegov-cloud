@@ -392,7 +392,7 @@ def view_activities(self, request):
         'layout': layout,
         'title': _("Activities"),
         'filters': filters,
-        'filtered': is_filtered,
+        'filtered': is_filtered(filters),
         'period': active_period,
         'activity_ages': activity_ages,
         'activity_min_cost': activity_min_cost,
@@ -413,6 +413,9 @@ def view_activities_for_volunteers(self, request):
 
     layout = VacationActivityCollectionLayout(self, request)
     layout.breadcrumbs[-1].text = _("Join as a Volunteer")
+
+    # always limit to activities seeking volunteers
+    self.filter.volunteers = {True}
 
     filters = {}
 

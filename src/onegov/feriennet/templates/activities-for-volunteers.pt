@@ -38,9 +38,11 @@
                                 <h3><a href="${request.link(activity)}">${activity.title}</a></h3>
                                 <p class="page-lead">${activity.lead}</p>
 
-                                <ul class="dense">
-                                    <li tal:repeat="occasion activity.occasions">
-                                        <div class="factoids" tal:define="dates exclude_filtered_dates(layout.model, occasion.dates)" tal:condition="occasion.seeking_volunteers and dates">
+                                <tal:b repeat="occasion activity.occasions">
+                                    <div class="call-for-volunteers" tal:define="dates exclude_filtered_dates(layout.model, occasion.dates)" tal:condition="occasion.seeking_volunteers and dates">
+                                        <h3 i18n:translate>Occasion</h3>
+
+                                        <div class="factoids">
                                             <div class="dates">
                                                 <ul>
                                                     <li tal:repeat="date dates">
@@ -49,13 +51,19 @@
                                                 </ul>
                                             </div>
                                         </div>
+                                        
+                                        <h3 i18n:translate>Needs</h3>
                                         <ul class="dense needs">
                                             <li tal:repeat="need occasion.needs">
-                                                ${need.name}
+                                                <span>${need.name}</span>
+                                                <a class="button tiny">
+                                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                                    <span><tal:b i18n:translate>To my list</tal:b></span>
+                                                </a>
                                             </li>
                                         </ul>
-                                    </li>
-                                </ul>
+                                    </div>
+                                </tal:b>
                             </div>
                         </div>
                     </div>

@@ -1935,7 +1935,7 @@ $booking-left-margin: 2rem;
         }
 
         .invoice-items-list {
-            border-bottom-color: black;
+            border-bottom-color: $black;
         }
 
         .invoice-items-payment {
@@ -2018,10 +2018,10 @@ $booking-left-margin: 2rem;
     .item-created {
         @include label($bg: $gray-light);
         border-radius: 3px;
-        padding: 5px 8px;
+        color: $charcoal;
         font-size: .8rem;
         margin-left: -.5rem;
-        color: $charcoal;
+        padding: 5px 8px;
     }
 }
 
@@ -2936,4 +2936,69 @@ $booking-left-margin: 2rem;
 .svg-icon-medium {
     height: 32px;
     width: 32px;
+}
+
+
+/*
+    Volunteering
+*/
+
+.call-for-volunteers {
+    background: $gray-pastel;
+    border: 1px solid  $gray;
+    border-radius: 3px;
+    padding: 0 .75rem .75rem;
+
+    &:first-of-type {
+        margin-top: .75rem;
+    }
+
+    h3 {
+        font-size: .875rem;
+        font-weight: bold;
+        margin-bottom: .75rem;
+        margin-top: .75rem;
+    }
+
+    h3 + .needs {
+        margin-top: -5px;
+    }
+
+    li {
+        font-size: .875rem;
+        margin-left: -3px;
+        padding: 3px;
+    }
+
+    & + .call-for-volunteers {
+        margin-top: 1rem;
+    }
+
+    .dates::before {
+        line-height: 1.25;
+    }
+
+    .needs li::before {
+        @include icon('\f2c1');
+        margin-right: 1ex;
+    }
+
+    .needs li:hover {
+        background: $gray;
+        border-radius: 3px;
+    }
+
+    .needs .button {
+        border-radius: 3px;
+        float: right;
+        font-size: .8rem;
+        height: 20px;
+        line-height: 1.25;
+        margin: 1px 0 0;
+        padding: 2px 5px;
+    }
+
+    .needs div {
+        margin-left: 3.25ex;
+    }
 }

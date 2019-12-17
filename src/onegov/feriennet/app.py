@@ -230,6 +230,11 @@ def get_js_path():
     return 'assets/js'
 
 
+@FeriennetApp.webasset('volunteer-cart')
+def get_volunteer_cart():
+    yield 'volunteer-cart.jsx'
+
+
 @FeriennetApp.webasset('common')
 def get_common_asset():
     yield from default_common_asset()

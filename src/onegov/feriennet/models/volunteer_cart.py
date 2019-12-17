@@ -29,6 +29,12 @@ class VolunteerCart(object):
 
         self.browser_session.volunteer_cart = items
 
+    def remove(self, need_id):
+        self.browser_session.volunteer_cart = [
+            i for i in self.browser_session.get('volunteer_cart', ())
+            if i != need_id
+        ]
+
     def card_items(self, need_id=None):
         stmt = as_selectable_from_path(
             module_path('onegov.feriennet', 'queries/card_items.sql'))
@@ -57,16 +63,22 @@ class VolunteerCart(object):
     def for_frontend(self, layout):
         grouped = groupby(self.card_items(), key=lambda i: i.need_id)
 
+        def date(record):
+            return layout.format_datetime_range(record.start, record.end)
+
+        def remove(record):
+            return layout.csrf_protected_url(
+                layout.request.link(
+                    VolunteerCartAction('remove', record.need_id)))
+
         for need_id, records in grouped:
             records = tuple(records)
 
             yield {
                 'need_id': need_id.hex,
+                'remove': remove(records[0]),
                 'activity': records[0].activity_title,
-                'dates': [
-                    layout.format_datetime_range(r.start, r.end)
-                    for r in records
-                ],
+                'dates': [date(r) for r in records],
                 'need': records[0].need_name
             }
 

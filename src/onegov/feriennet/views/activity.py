@@ -21,6 +21,7 @@ from onegov.feriennet.layout import VacationActivityFormLayout
 from onegov.feriennet.layout import VacationActivityLayout
 from onegov.feriennet.models import ActivityMessage
 from onegov.feriennet.models import VacationActivity
+from onegov.feriennet.models import VolunteerCart
 from onegov.feriennet.models import VolunteerCartAction
 from onegov.org.mail import send_ticket_mail
 from onegov.org.models import TicketMessage
@@ -418,6 +419,9 @@ def view_activities_for_volunteers(self, request):
     # always limit to activities seeking volunteers
     self.filter.volunteers = {True}
 
+    # include javascript part
+    request.include('volunteer-cart')
+
     filters = {}
 
     if show_activities:
@@ -449,6 +453,7 @@ def view_activities_for_volunteers(self, request):
         'activity_spots': activity_spots,
         'exclude_filtered_dates': exclude_filtered_dates,
         'to_volunteer_cart_url': to_volunteer_cart_url,
+        'cart_url': request.class_link(VolunteerCart),
         'current_location': request.link(
             self.by_page_range((0, self.pages[-1])), name='volunteer')
     }

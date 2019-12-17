@@ -21,6 +21,7 @@ from onegov.feriennet.layout import VacationActivityFormLayout
 from onegov.feriennet.layout import VacationActivityLayout
 from onegov.feriennet.models import ActivityMessage
 from onegov.feriennet.models import VacationActivity
+from onegov.feriennet.models import VolunteerCartAction
 from onegov.org.mail import send_ticket_mail
 from onegov.org.models import TicketMessage
 from onegov.core.elements import Link, Confirm, Intercooler
@@ -432,6 +433,10 @@ def view_activities_for_volunteers(self, request):
     filters = {k: v for k, v in filters.items() if v}
     adjust_filter_path(filters, suffix='volunteer')
 
+    def to_volunteer_cart_url(need):
+        action = VolunteerCartAction(action='add', target=need.id)
+        return layout.csrf_protected_url(request.link(action))
+
     return {
         'activities': self.batch if show_activities else None,
         'layout': layout,
@@ -443,6 +448,7 @@ def view_activities_for_volunteers(self, request):
         'activity_min_cost': activity_min_cost,
         'activity_spots': activity_spots,
         'exclude_filtered_dates': exclude_filtered_dates,
+        'to_volunteer_cart_url': to_volunteer_cart_url,
         'current_location': request.link(
             self.by_page_range((0, self.pages[-1])), name='volunteer')
     }

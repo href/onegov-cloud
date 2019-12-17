@@ -15,6 +15,8 @@ from onegov.feriennet.models import Calendar
 from onegov.feriennet.models import GroupInvite
 from onegov.feriennet.models import InvoiceAction, VacationActivity
 from onegov.feriennet.models import NotificationTemplate
+from onegov.feriennet.models import VolunteerCart
+from onegov.feriennet.models import VolunteerCartAction
 from onegov.org.converters import keywords_converter
 from onegov.core.converters import integer_range_converter
 from uuid import UUID
@@ -283,3 +285,18 @@ def get_group_invite(app, request, group_code, username=None):
     converters=dict(id=UUID))
 def get_occasion_need(request, id):
     return request.session.query(OccasionNeed).filter_by(id=id).first()
+
+
+@FeriennetApp.path(
+    model=VolunteerCart,
+    path='/volunteer-cart')
+def get_volunteer_cart(request):
+    return VolunteerCart.from_request(request)
+
+
+@FeriennetApp.path(
+    model=VolunteerCartAction,
+    path='/volunteer-cart-action/{action}/{target}',
+    converters=dict(target=UUID))
+def get_volunteer_cart_action(request, action, target):
+    return VolunteerCartAction(action, target)

@@ -12,10 +12,16 @@ def view_cart(self, request):
     return list(self.for_frontend(DefaultLayout(self, request)))
 
 
-@FeriennetApp.view(
+@FeriennetApp.json(
     model=VolunteerCartAction,
     permission=Public,
     request_method='POST')
 def execute_cart_action(self, request):
-    request.assert_valid_csrf_token()
-    self.execute(request, VolunteerCart.from_request(request))
+
+    # The CSRF check is disabled here, to make it easier to build the URL
+    # in Javascript. This should be an exception, as this function here does
+    # not provide a big attack surface, if any.
+    #
+    # request.assert_valid_csrf_token()
+
+    return self.execute(request, VolunteerCart.from_request(request))

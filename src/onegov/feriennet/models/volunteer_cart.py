@@ -35,6 +35,9 @@ class VolunteerCart(object):
             if i != need_id
         ]
 
+    def has(self, need_id):
+        return need_id in self.browser_session.get('volunteer_cart', [])
+
     def card_items(self, need_id=None):
         stmt = as_selectable_from_path(
             module_path('onegov.feriennet', 'queries/card_items.sql'))
@@ -76,6 +79,7 @@ class VolunteerCart(object):
 
             yield {
                 'need_id': need_id.hex,
+                'occasion_id': records[0].occasion_id.hex,
                 'remove': remove(records[0]),
                 'activity': records[0].activity_title,
                 'dates': [date(r) for r in records],
@@ -92,14 +96,29 @@ class VolunteerCartAction(object):
 
     def execute(self, request, cart):
         if self.action == 'add':
+            if cart.has(self.target):
+                return {
+                    'success': False,
+                    'message': request.translate(_(
+                        "This item is already in your list."
+                    ))
+                }
+
             if cart.overlaps(self.target):
-                request.alert(
-                    _("This item overlaps with another item in your list"))
-            else:
-                cart.add(self.target)
+                return {
+                    'success': False,
+                    'message': request.translate(_(
+                        "Could not add item. It overlaps with "
+                        "another item in your list"
+                    ))
+                }
+
+            cart.add(self.target)
 
         elif self.action == 'remove':
             cart.remove(self.target)
 
         else:
             pass
+
+        return {'success': True}

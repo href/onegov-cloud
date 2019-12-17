@@ -2958,8 +2958,7 @@ $booking-left-margin: 2rem;
     Volunteering
 */
 
-.volunteer-cart {
-
+.volunteer-cart-panel {
     h2 {
         border-color: $success-color !important;
     }
@@ -3024,5 +3023,42 @@ $booking-left-margin: 2rem;
 
     .needs div {
         margin-left: 3.25ex;
+    }
+
+    .alert {
+        background: $red-pastel;
+        border-radius: 3px;
+        color: $red-dark;
+        font-size: .875rem;
+        line-height: 1.3;
+        margin-left: -2px;
+        margin-top: .25rem;
+        padding: 2px 4px;
+    }
+}
+
+.volunteer-cart {
+    .cart-item-activity {
+        font-weight: bold;
+    }
+
+    .cart-item-dates {
+        margin: .5rem 0;
+
+        li {
+            font-size: .875rem;
+        }
+    }
+
+    .volunteer-cart-item {
+        margin-bottom: 1rem;
+    }
+
+    .cart-item-remove {
+        font-size: .875rem;
+    }
+
+    .button {
+        margin-top: .5rem;
     }
 }

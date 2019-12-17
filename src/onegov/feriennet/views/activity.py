@@ -449,6 +449,7 @@ def view_activities_for_volunteers(self, request):
         'activity_spots': activity_spots,
         'exclude_filtered_dates': exclude_filtered_dates,
         'cart_url': request.class_link(VolunteerCart),
+        'cart_submit_url': request.class_link(VolunteerCart, name='submit'),
         'cart_action_url': request.class_link(VolunteerCartAction, {
             'action': 'action',
             'target': 'target',

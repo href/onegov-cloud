@@ -761,3 +761,22 @@ class NotificationTemplateLayout(DefaultLayout):
             links.append(Link(self.subtitle, '#'))
 
         return links
+
+
+class VolunteerFormLayout(DefaultLayout):
+
+    @cached_property
+    def breadcrumbs(self):
+        return [
+            Link(_("Homepage"), self.homepage_url),
+            Link(
+                _("Join as a Volunteer"),
+                self.request.class_link(
+                    VacationActivityCollection, name='volunteer'
+                )
+            ),
+            Link(
+                _("Signup"),
+                '#'
+            )
+        ]

@@ -73,7 +73,7 @@ var VolunteerCart = React.createClass({
                     </p>
                 }</div>
                 <div>{
-                    self.state.items.length !== 0 && <a className="button success">
+                    self.state.items.length !== 0 && <a href={this.props.cartSubmitURL} className="button success">
                         {self.props.buttonLabel}
                     </a>
                 }</div>
@@ -92,6 +92,7 @@ jQuery.fn.volunteerCart = function() {
             buttonLabel={container.attr('data-button-label')}
             removeLabel={container.attr('data-remove-label')}
             cartURL={container.attr('data-cart-url')}
+            cartSubmitURL={container.attr('data-cart-submit-url')}
             cartActionURL={container.attr('data-cart-action-url')}
         />, el
     );

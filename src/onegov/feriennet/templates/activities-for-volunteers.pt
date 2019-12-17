@@ -91,13 +91,7 @@
                 <div class="volunteer-cart-panel">
                     <h2 class="filter-title" i18n:translate>My list</h2>
 
-                    <div class="volunteer-cart-widget"
-                        data-empty-label="No activities in your list."
-                        data-button-label="Register as volunteer"
-                        data-remove-label="Remove"
-                        data-cart-url="${cart_url}"
-                        data-cart-action-url="${cart_action_url}"
-                        i18n:attributes="data-empty-label;data-button-label;data-remove-label"></div>
+                    <tal:b metal:use-macro="layout.macros['volunteer-cart']" />
                 </div>
 
                 <div tal:condition="filters['weeks']|nothing" class="filter-weeks">

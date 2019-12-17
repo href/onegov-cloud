@@ -406,7 +406,7 @@ def view_activities(self, request):
     model=VacationActivityCollection,
     template='activities-for-volunteers.pt',
     permission=Public,
-    name='volunteers')
+    name='volunteer')
 def view_activities_for_volunteers(self, request):
     active_period = request.app.active_period
     show_activities = bool(active_period or request.is_organiser)
@@ -430,7 +430,7 @@ def view_activities_for_volunteers(self, request):
         filters['municipalities'] = filter_municipalities(self, request)
 
     filters = {k: v for k, v in filters.items() if v}
-    adjust_filter_path(filters, suffix='volunteers')
+    adjust_filter_path(filters, suffix='volunteer')
 
     return {
         'activities': self.batch if show_activities else None,
@@ -444,7 +444,7 @@ def view_activities_for_volunteers(self, request):
         'activity_spots': activity_spots,
         'exclude_filtered_dates': exclude_filtered_dates,
         'current_location': request.link(
-            self.by_page_range((0, self.pages[-1])), name='volunteers')
+            self.by_page_range((0, self.pages[-1])), name='volunteer')
     }
 
 

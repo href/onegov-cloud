@@ -23,6 +23,11 @@ def get_global_tools(request):
     yield from get_base_tools(request)
     yield from get_personal_tools(request)
     yield from get_admin_tools(request)
+    yield Link(
+        text=_("Volunteer"),
+        url=request.class_link(VacationActivityCollection, name='volunteer'),
+        attrs={'class': ('volunteer', 'highlighted')}
+    )
 
 
 def get_admin_tools(request):

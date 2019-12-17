@@ -245,6 +245,21 @@ ul.single-line {
     .show-notifications::before { @include icon('\f003'); }
     .show-exports::before { @include icon('\f019'); }
     .show-ticket::before { @include icon('\f145'); }
+    .volunteer::before { @include icon('\f004'); }
+}
+
+.globals .highlighted {
+    background: $success-color;
+    border: 1px solid darken($success-color, 5%);
+    border-radius: 3px;
+    height: 1.4rem !important;
+    line-height: 1.5 !important;
+    margin-top: .6rem;
+
+    &:hover,
+    &:active {
+        background: darken($success-color, 5%) !important;
+    }
 }
 
 /*

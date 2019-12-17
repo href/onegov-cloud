@@ -36,7 +36,14 @@ class VolunteerCart(object):
         ]
 
     def has(self, need_id):
-        return need_id in self.browser_session.get('volunteer_cart', [])
+        return need_id in self.ids
+
+    def ids(self):
+        return self.browser_session.get('volunteer_cart', ())
+
+    def clear(self):
+        if 'volunteer_cart' in self.browser_session:
+            del self.browser_session.volunteer_cart
 
     def card_items(self, need_id=None):
         stmt = as_selectable_from_path(

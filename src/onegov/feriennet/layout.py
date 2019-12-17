@@ -776,7 +776,7 @@ class VolunteerFormLayout(DefaultLayout):
                 )
             ),
             Link(
-                _("Signup"),
+                _("Register as Volunteer"),
                 '#'
             )
         ]

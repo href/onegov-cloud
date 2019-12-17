@@ -1,9 +1,11 @@
+from onegov.activity import VolunteerCollection
 from onegov.core.security import Public
 from onegov.feriennet import FeriennetApp, _
 from onegov.feriennet.layout import DefaultLayout, VolunteerFormLayout
 from onegov.feriennet.models import VolunteerCart
 from onegov.feriennet.models import VolunteerCartAction
 from onegov.feriennet.forms import VolunteerForm
+from uuid import uuid4
 
 
 # Public, even though this is personal data -> the storage is limited to the
@@ -37,11 +39,29 @@ def execute_cart_action(self, request):
 def submit_volunteer(self, request, form):
     layout = VolunteerFormLayout(self, request)
     request.include('volunteer-cart')
+    complete = False
+
+    if form.submitted(request):
+        volunteers = VolunteerCollection(request.session)
+        cart = VolunteerCart.from_request(request)
+        token = uuid4()
+
+        for need_id in cart.ids():
+            volunteers.add(
+                token=token,
+                need_id=need_id,
+                **{
+                    k: v for k, v in form.data.items() if k != 'csrf_token'
+                })
+
+        cart.clear()
+        complete = True
 
     return {
         'layout': layout,
         'form': form,
-        'title': _("Registration"),
+        'title': _("Register as Volunteer"),
+        'complete': complete,
         'cart_url': request.class_link(VolunteerCart),
         'cart_submit_url': request.class_link(VolunteerCart, name='submit'),
         'cart_action_url': request.class_link(VolunteerCartAction, {

@@ -72,7 +72,7 @@ def get_admin_tools(request):
                         url=request.link(
                             VolunteerCollection(
                                 request.session,
-                                period_id=(period or periods[0]).id
+                                period=(period or periods[0])
                             )
                         ),
                         attrs={'class': 'show-volunteers'}

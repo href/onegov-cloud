@@ -27,6 +27,9 @@ def view_volunteers(self, request):
         'title': _("Volunteers"),
         'records': self.report(),
         'grouped': grouped,
+        'periods': request.app.periods,
+        'period': self.period,
+        'model': self,
     }
 
 
@@ -64,7 +67,7 @@ def submit_volunteer(self, request, form):
     complete = False
 
     if form.submitted(request):
-        volunteers = VolunteerCollection(request.session)
+        volunteers = VolunteerCollection(request.session, period=None)
         cart = VolunteerCart.from_request(request)
         token = uuid4()
 

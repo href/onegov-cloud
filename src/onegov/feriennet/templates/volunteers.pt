@@ -3,43 +3,120 @@
         ${title}
     </tal:b>
     <tal:b metal:fill-slot="content">
-        <tal:b repeat="activity_group grouped(records, 'activity_id')">
-            <h2>${activity_group[0].activity_title}</h2>
-            
-            <tal:b repeat="occasion_group grouped(activity_group, 'occasion_id')">
-                <h3>
-                    ${occasion_group[0].occasion_number}.
-                    <tal:b i18n:translate>Occasion</tal:b>
-                </h3>
+        <div class="row collapse">
+            <div class="columns small-12 medium-8">
+                <tal:b repeat="activity_group grouped(records, 'activity_id')">
+                    <h2>${activity_group[0].activity_title}</h2>
 
-                <tal:b repeat="need_group grouped(occasion_group, 'need_name')">
-                    <div class="progress ${int(need_group[0].confirmed) >= int(need_group[0].min_required) and 'success' or 'alert'}">
-                        <span class="meter" style="width: ${min(int(need_group[0].confirmed) / int(need_group[0].min_required), 1) * 100}%">
+                    <tal:b repeat="occasion_group grouped(activity_group, 'occasion_id')">
+                        <h3>
+                            ${occasion_group[0].occasion_number}.
+                            <tal:b i18n:translate>Occasion</tal:b>
+                            - ${layout.format_datetime_range(*occasion_group[0].dates[0])}
+                        </h3>
 
-                        </span>
-                        <span class="meter-text">
-                            <strong>${need_group[0].need_name}</strong>:
-                            <tal:b i18n:translate>
-                                <span i18n:name="count">
-                                    ${need_group[0].confirmed}
+                        <tal:b repeat="need_group grouped(occasion_group, 'need_name')">
+
+                            <div class="progress ${int(need_group[0].confirmed) >= int(need_group[0].min_required) and 'success' or 'alert'}">
+
+                                <span class="meter" style="width: ${min(int(need_group[0].confirmed) / int(need_group[0].min_required), 1) * 100}%">
+
                                 </span>
-                                of 
-                                <span i18n:name="total">
-                                    ${need_group[0].min_required}
-                                    -
-                                    ${need_group[0].max_required}
+                                <span class="meter-text">
+                                    <strong>${need_group[0].need_name}</strong>:
+                                    <tal:b i18n:translate>
+                                        <span i18n:name="count">
+                                            ${need_group[0].confirmed}
+                                        </span>
+                                        of
+                                        <span i18n:name="total">
+                                            ${need_group[0].min_required}
+                                            -
+                                            ${need_group[0].max_required}
+                                        </span>
+                                    </tal:b>
                                 </span>
-                            </tal:b>
-                        </span>
-                    </div>
+                            </div>
 
-                    <ul class="dense">
-                        <li>
-
-                        </li>
-                    </ul>
+                            <table tal:condition="need_group[-1].volunteer_id">
+                                <thead>
+                                    <tr>
+                                        <th i18n:translate>First name</th>
+                                        <th i18n:translate>Last name</th>
+                                        <th i18n:translate>Age</th>
+                                        <th i18n:translate>Organisation</th>
+                                        <th i18n:translate>Place</th>
+                                        <th i18n:translate colspan="2">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr tal:repeat="record need_group" class="volunteer-${record.state}">
+                                        <td>${record.first_name}</td>
+                                        <td>${record.last_name}</td>
+                                        <td>${int(record.age)}</td>
+                                        <td>${record.organisation}</td>
+                                        <td>${record.place}</td>
+                                        <td>
+                                            <tal:b switch="record.state">
+                                                <tal:b case="'open'" i18n:translate>
+                                                    Open
+                                                </tal:b>
+                                                <tal:b case="'contacted'" i18n:translate>
+                                                    Contacted
+                                                </tal:b>
+                                                <tal:b case="'confirmed'" i18n:translate>
+                                                    Confirmed
+                                                </tal:b>
+                                                <tal:b case="'denied'" i18n:translate>
+                                                    Denied
+                                                </tal:b>
+                                            </tal:b>
+                                        </td>
+                                        <td>
+                                            <button href="#" data-dropdown="dropdown-${record.volunteer_id.hex}" aria-controls="dropdown-${record.volunteer_id.hex}" aria-expanded="false" class="button tiny actions-button">
+                                                <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+                                                <span i18n:translate class="show-for-sr">
+                                                    Actions
+                                                </span>
+                                            </button>
+                                            <ul id="dropdown-${record.volunteer_id.hex}" data-dropdown-content class="f-dropdown" aria-hidden="true">
+                                                <li>
+                                                    <a href="#" i18n:translate>
+                                                        Contact by e-mail
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="#" i18n:translate>
+                                                        Contact by phone
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="#" i18n:translate>
+                                                        Mark as contacted
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="#" i18n:translate>
+                                                        Mark as confirmed
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="#" i18n:translate>
+                                                        Mark as denied
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </tal:b>
+                    </tal:b>
                 </tal:b>
-            </tal:b>
-        </tal:b>
+            </div>
+            <div class="columns small-12 medium-4">
+                <tal:b metal:use-macro="layout.macros.periods" />
+            </div>
+        </div>
     </tal:b>
 </div>

@@ -28,22 +28,33 @@ SELECT
     occasions.id AS occasion_id,                         -- UUID
     occasions.period_id AS period_id,                    -- UUID
     occasion_numbers.number AS occasion_number,          -- Integer
+    volunteers.id AS volunteer_id,                       -- UUID
     volunteers.first_name AS first_name,                 -- Text
     volunteers.last_name AS last_name,                   -- Text
     volunteers.address AS address,                       -- Text
     volunteers.zip_code AS zip_code,                     -- Text
     volunteers.place AS place,                           -- Text
     volunteers.organisation AS organisation,             -- Text
-    volunteers.birth_date AS birth_date,                 -- Date
+    EXTRACT(
+        YEAR FROM age(volunteers.birth_date)) as age,    -- Integer
     volunteers.email AS email,                           -- Text
     volunteers.phone AS phone,                           -- Text
     volunteers.state AS state,                           -- Text
-    array_agg(occasion_dates.start) AS starts,           -- ARRAY(Date)
-    array_agg(occasion_dates.end) AS ends                -- ARRAY(Date)
+    array_agg(
+        ARRAY[
+            occasion_dates.start
+                AT TIME ZONE 'UTC'
+                AT TIME ZONE occasion_dates.timezone,
+            occasion_dates.end
+                AT TIME ZONE 'UTC'
+                AT TIME ZONE occasion_dates.timezone
+        ]
+    ) AS dates                                         -- ARRAY(DateTime)
+
 FROM
-    volunteers
+    occasion_needs
+    LEFT JOIN volunteers ON occasion_needs.id = volunteers.need_id
     LEFT JOIN needs_fulfilled ON volunteers.need_id = needs_fulfilled.need_id
-    JOIN occasion_needs ON volunteers.need_id = occasion_needs.id
     JOIN occasions ON occasion_needs.occasion_id = occasions.id
     JOIN activities ON occasions.activity_id = activities.id
     JOIN occasion_dates ON occasions.id = occasion_dates.occasion_id
@@ -57,6 +68,7 @@ GROUP BY
     occasions.order,
     occasions.id,
     occasion_numbers.number,
+    volunteers.id,
     volunteers.first_name,
     volunteers.last_name,
     volunteers.state,
@@ -69,4 +81,13 @@ GROUP BY
     volunteers.phone,
     needs_fulfilled.fulfilled
 ORDER BY
-    activity_title, activity_id, occasions.id, occasion_needs.name, first_name, last_name
+    activity_title,
+    activity_id,
+    occasions.id,
+    occasion_needs.name,
+    volunteers.state='confirmed',
+    volunteers.state='contacted',
+    volunteers.state='open',
+    volunteers.state='denied',
+    first_name,
+    last_name

@@ -22,6 +22,11 @@ def view_volunteers(self, request):
         return tuple(
             tuple(g) for k, g in groupby(records, key=attrgetter(name)))
 
+    if self.report().first():
+        has_needs = True
+    else:
+        has_needs = False
+
     return {
         'layout': VolunteerLayout(self, request),
         'title': _("Volunteers"),
@@ -30,6 +35,7 @@ def view_volunteers(self, request):
         'periods': request.app.periods,
         'period': self.period,
         'model': self,
+        'has_needs': has_needs,
     }
 
 

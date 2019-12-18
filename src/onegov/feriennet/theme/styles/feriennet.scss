@@ -2959,7 +2959,7 @@ $booking-left-margin: 2rem;
 
 
 /*
-    Volunteering
+    Volunteer sign-up
 */
 
 .volunteer-cart-panel {
@@ -3069,4 +3069,72 @@ $booking-left-margin: 2rem;
 
 .volunteer-form-layout .volunteer-cart .button {
     display: none;
+}
+
+
+/*
+    Volunteer view
+*/
+.volunteer-actions {
+    .state-transitions {
+        background: $gray-light;
+        border-top: 1px solid $gray;
+
+        &:nth-last-child(1),
+        &:nth-last-child(2) {
+            border-top: 0;
+        }
+    }
+}
+
+.volunteers-list {
+
+    h2 {
+        font-size: $h3-font-size;
+        margin-bottom: 1rem;
+    }
+
+    h3 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    h2 + h3 {
+        margin-top: 0;
+    }
+
+    .right-aligned {
+        float: right;
+        font-weight: normal;
+    }
+
+    table {
+        margin-top: -1rem;
+        width: 100%;
+    }
+
+    table + h2 {
+        margin-top: 1.5rem;
+    }
+
+    .progress + h2 {
+        margin-top: .5rem;
+    }
+
+    .progress {
+        width: 100%;
+
+        & + .progress {
+            margin-top: -1rem;
+        }
+    }
+
+    .success + table {
+        border-top: 1px solid $green-light;
+    }
+
+    .alert + table {
+        border-top: 1px solid $gray-dark;
+    }
 }

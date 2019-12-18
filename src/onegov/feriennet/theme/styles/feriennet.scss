@@ -3095,8 +3095,9 @@ $booking-left-margin: 2rem;
     }
 
     h3 {
-        font-size: 1.2rem;
-        margin-bottom: 1rem;
+        color: $tuatara;
+        font-size: 1.1rem;
+        margin-bottom: .5rem;
         margin-top: 1.5rem;
     }
 
@@ -3136,5 +3137,33 @@ $booking-left-margin: 2rem;
 
     .alert + table {
         border-top: 1px solid $gray-dark;
+    }
+
+    .state-cell {
+        font-weight: bold;
+    }
+
+    .volunteer-confirmed {
+        background: lighten($green-pastel, 6%);
+
+        .state-cell {
+            color: $green-dark;
+        }
+    }
+
+    .volunteer-contacted {
+        background: lighten($blue-pastel, 6%);
+
+        .state-cell {
+            color: $blue-dark;
+        }
+    }
+
+    .volunteer-denied {
+        background: lighten($red-pastel, 6%);
+
+        .state-cell {
+            color: $red-dark;
+        }
     }
 }

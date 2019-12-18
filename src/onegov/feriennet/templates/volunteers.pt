@@ -14,7 +14,7 @@
                     <h2>${activity_group[0].activity_title}</h2>
 
                     <tal:b repeat="occasion_group grouped(activity_group, 'occasion_id')">
-                        <h3>
+                        <h3 id="${occasion_group[0].occasion_id.hex">
                             ${occasion_group[0].occasion_number}.
                             <tal:b i18n:translate>Occasion</tal:b>
                             <span class="right-aligned">${layout.format_datetime_range(*occasion_group[0].dates[0])}</span>
@@ -66,7 +66,7 @@
                                         <td>${int(record.age)}</td>
                                         <td>${record.organisation}</td>
                                         <td>${record.place}</td>
-                                        <td>
+                                        <td class="state-cell">
                                             <tal:b switch="record.state">
                                                 <tal:b case="'open'" i18n:translate>
                                                     Open
@@ -107,8 +107,16 @@
                                                     </a>
                                                 </li>
                                                 <li class="state-transitions">
-                                                    <a href="#">
+                                                    <a ic-post-to="${state_change(record, 'open')}">
                                                         <i class="fa fa-circle-o" aria-hidden="true"></i>
+                                                        <tal:b i18n:translate>
+                                                            Mark as open
+                                                        </tal:b>
+                                                    </a>
+                                                </li>
+                                                <li class="state-transitions">
+                                                    <a href="#">
+                                                        <i class="fa fa-circle" aria-hidden="true"></i>
                                                         <tal:b i18n:translate>
                                                             Mark as contacted
                                                         </tal:b>
@@ -116,7 +124,7 @@
                                                 </li>
                                                 <li class="state-transitions">
                                                     <a href="#">
-                                                        <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+                                                        <i class="fa fa-check-circle" aria-hidden="true"></i>
                                                         <tal:b i18n:translate>
                                                             Mark as confirmed
                                                         </tal:b>

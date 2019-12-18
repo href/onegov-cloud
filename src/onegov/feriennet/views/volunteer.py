@@ -1,5 +1,5 @@
 from itertools import groupby
-from onegov.activity import VolunteerCollection
+from onegov.activity import Volunteer, VolunteerCollection
 from onegov.core.security import Public, Secret
 from onegov.feriennet import FeriennetApp, _
 from onegov.feriennet.forms import VolunteerForm
@@ -17,6 +17,7 @@ from uuid import uuid4
     template='volunteers.pt',
     permission=Secret)
 def view_volunteers(self, request):
+    layout = VolunteerLayout(self, request)
 
     def grouped(records, name):
         return tuple(
@@ -27,8 +28,13 @@ def view_volunteers(self, request):
     else:
         has_needs = False
 
+    def state_change(record, state):
+        url = request.class_link(
+            Volunteer, name=state, variables={'id': record.volunteer_id.hex})
+        return layout.csrf_protected_url(url)
+
     return {
-        'layout': VolunteerLayout(self, request),
+        'layout': layout,
         'title': _("Volunteers"),
         'records': self.report(),
         'grouped': grouped,
@@ -36,7 +42,48 @@ def view_volunteers(self, request):
         'period': self.period,
         'model': self,
         'has_needs': has_needs,
+        'state_change': state_change,
     }
+
+
+@FeriennetApp.view(
+    model=Volunteer,
+    permission=Secret,
+    name='open',
+    request_method='POST')
+def handle_open(self, request):
+    request.assert_valid_csrf_token()
+    self.state = 'open'
+
+
+@FeriennetApp.view(
+    model=Volunteer,
+    permission=Secret,
+    name='contacted',
+    request_method='POST')
+def handle_contacted(self, request):
+    request.assert_valid_csrf_token()
+    self.state = 'contacted'
+
+
+@FeriennetApp.view(
+    model=Volunteer,
+    permission=Secret,
+    name='confirmed',
+    request_method='POST')
+def handle_confirmed(self, request):
+    request.assert_valid_csrf_token()
+    self.state = 'confirmed'
+
+
+@FeriennetApp.view(
+    model=Volunteer,
+    permission=Secret,
+    name='denied',
+    request_method='POST')
+def handle_denied(self, request):
+    request.assert_valid_csrf_token()
+    self.state = 'denied'
 
 
 # Public, even though this is personal data -> the storage is limited to the

@@ -4,7 +4,7 @@ from onegov.activity import Booking, BookingCollection
 from onegov.activity import InvoiceCollection, InvoiceItem
 from onegov.activity import Occasion, OccasionCollection, OccasionNeed
 from onegov.activity import Period, PeriodCollection
-from onegov.activity import VolunteerCollection
+from onegov.activity import Volunteer, VolunteerCollection
 from onegov.activity.utils import is_valid_group_code
 from onegov.feriennet import FeriennetApp
 from onegov.feriennet.collections import BillingCollection
@@ -314,3 +314,11 @@ def get_volunteers(request, period_id):
         return None
 
     return VolunteerCollection(request.session, period)
+
+
+@FeriennetApp.path(
+    model=Volunteer,
+    path='/volunteer/{id}',
+    converters=dict(id=UUID))
+def get_volunteer(request, id):
+    return VolunteerCollection(request.session, None).by_id(id)

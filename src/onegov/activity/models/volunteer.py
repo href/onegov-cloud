@@ -2,6 +2,7 @@ from onegov.core.orm import Base
 from onegov.core.orm.mixins import ContentMixin, TimestampMixin
 from onegov.core.orm.types import UUID
 from sqlalchemy import Column, Text, Date, Enum, ForeignKey
+from sqlalchemy.orm import relationship
 from uuid import uuid4
 
 
@@ -31,6 +32,7 @@ class Volunteer(Base, ContentMixin, TimestampMixin):
 
     #: The need the volunteer signed up for
     need_id = Column(UUID, ForeignKey('occasion_needs.id'), nullable=False)
+    need = relationship('OccasionNeed')
 
     #: A token linking multiple volunteer records (volunteers sign up for
     #: multiple needs at once, and are then multiplexed here)

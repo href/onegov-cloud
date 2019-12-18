@@ -1,11 +1,33 @@
+from itertools import groupby
 from onegov.activity import VolunteerCollection
-from onegov.core.security import Public
+from onegov.core.security import Public, Secret
 from onegov.feriennet import FeriennetApp, _
-from onegov.feriennet.layout import DefaultLayout, VolunteerFormLayout
+from onegov.feriennet.forms import VolunteerForm
+from onegov.feriennet.layout import DefaultLayout
+from onegov.feriennet.layout import VolunteerFormLayout
+from onegov.feriennet.layout import VolunteerLayout
 from onegov.feriennet.models import VolunteerCart
 from onegov.feriennet.models import VolunteerCartAction
-from onegov.feriennet.forms import VolunteerForm
+from operator import attrgetter
 from uuid import uuid4
+
+
+@FeriennetApp.html(
+    model=VolunteerCollection,
+    template='volunteers.pt',
+    permission=Secret)
+def view_volunteers(self, request):
+
+    def grouped(records, name):
+        return tuple(
+            tuple(g) for k, g in groupby(records, key=attrgetter(name)))
+
+    return {
+        'layout': VolunteerLayout(self, request),
+        'title': _("Volunteers"),
+        'records': self.report(),
+        'grouped': grouped,
+    }
 
 
 # Public, even though this is personal data -> the storage is limited to the

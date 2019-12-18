@@ -245,6 +245,7 @@ ul.single-line {
     .show-notifications::before { @include icon('\f003'); }
     .show-exports::before { @include icon('\f019'); }
     .show-ticket::before { @include icon('\f145'); }
+    .show-volunteers::before { @include icon('\f004'); }
     .volunteer::before { @include icon('\f004'); }
 }
 
@@ -1550,73 +1551,76 @@ $booking-left-margin: 2rem;
             animation: oscillate-opacity 1s infinite;
         }
     }
+}
 
-    .progress {
-        border: 0;
-        cursor: pointer;
-        display: inline-block;
-        height: 2.5rem;
-        padding: 0;
-        position: relative;
-        width: calc(100% - 2.5rem);
+/*
+    Progress bar
+*/
+.progress {
+    border: 0;
+    cursor: pointer;
+    display: inline-block;
+    height: 2.5rem;
+    padding: 0;
+    position: relative;
+    width: calc(100% - 2.5rem);
+
+    .meter {
+        width: 100%;
+    }
+
+    &.success .meter {
+        background-color: $green-pastel;
+    }
+
+    &.alert .meter {
+        background-color: $red-pastel;
+    }
+
+    &.cancelled {
+        background: repeating-linear-gradient(
+            45deg,
+            $red-pastel,
+            $red-pastel 15px,
+            $gray-pastel 15px,
+            $gray-pastel 30px
+        );
 
         .meter {
-            width: 100%;
+            background-color: $red-light;
         }
 
-        &.success .meter {
-            background-color: $green-pastel;
-        }
-
-        &.alert .meter {
-            background-color: $red-pastel;
-        }
-
-        &.cancelled {
-            background: repeating-linear-gradient(
-                45deg,
-                $red-pastel,
-                $red-pastel 15px,
-                $gray-pastel 15px,
-                $gray-pastel 30px
-            );
-
-            .meter {
-                background-color: $red-light;
-            }
-
-            .meter-text::before {
-                @include icon('\f00d');
-                color: $red;
-                margin-right: 1ex;
-            }
-
-            .meter-text-inner {
-                color: $red-dark;
-            }
-        }
-
-        &.success .meter-text::before {
-            @include icon('\f058');
-            color: $green;
-            margin-right: 1ex;
-        }
-
-        &.alert .meter-text::before {
-            @include icon('\f06a');
+        .meter-text::before {
+            @include icon('\f00d');
             color: $red;
             margin-right: 1ex;
         }
+
+        .meter-text-inner {
+            color: $red-dark;
+        }
     }
 
-    .meter-text {
-        font-size: .9rem;
-        left: 0;
-        line-height: .9rem;
-        padding: .75rem;
-        position: absolute;
-        top: 0;
+    &.success .meter-text::before {
+        @include icon('\f058');
+        color: $green;
+        margin-right: 1ex;
     }
+
+    &.alert .meter-text::before {
+        @include icon('\f06a');
+        color: $red;
+        margin-right: 1ex;
+    }
+}
+
+.meter-text {
+    font-size: .9rem;
+    left: 0;
+    line-height: .9rem;
+    padding: .75rem;
+    position: absolute;
+    top: 0;
 }
 
 /*

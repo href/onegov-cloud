@@ -1,5 +1,6 @@
 from onegov.activity import BookingCollection
 from onegov.activity import PeriodCollection
+from onegov.activity import VolunteerCollection
 from onegov.feriennet import _, FeriennetApp
 from onegov.feriennet.collections import BillingCollection
 from onegov.feriennet.collections import MatchCollection
@@ -65,6 +66,19 @@ def get_admin_tools(request):
 
         if periods:
             if request.is_admin:
+                links.append(
+                    Link(
+                        text=_("Volunteers"),
+                        url=request.link(
+                            VolunteerCollection(
+                                request.session,
+                                period_id=(period or periods[0]).id
+                            )
+                        ),
+                        attrs={'class': 'show-volunteers'}
+                    )
+                )
+
                 links.append(
                     Link(
                         text=_("Notifications"),

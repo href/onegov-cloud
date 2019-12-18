@@ -1,0 +1,45 @@
+<div metal:use-macro="layout.base" i18n:domain="onegov.feriennet">
+    <tal:b metal:fill-slot="title">
+        ${title}
+    </tal:b>
+    <tal:b metal:fill-slot="content">
+        <tal:b repeat="activity_group grouped(records, 'activity_id')">
+            <h2>${activity_group[0].activity_title}</h2>
+            
+            <tal:b repeat="occasion_group grouped(activity_group, 'occasion_id')">
+                <h3>
+                    ${occasion_group[0].occasion_number}.
+                    <tal:b i18n:translate>Occasion</tal:b>
+                </h3>
+
+                <tal:b repeat="need_group grouped(occasion_group, 'need_name')">
+                    <div class="progress ${int(need_group[0].confirmed) >= int(need_group[0].min_required) and 'success' or 'alert'}">
+                        <span class="meter" style="width: ${min(int(need_group[0].confirmed) / int(need_group[0].min_required), 1) * 100}%">
+
+                        </span>
+                        <span class="meter-text">
+                            <strong>${need_group[0].need_name}</strong>:
+                            <tal:b i18n:translate>
+                                <span i18n:name="count">
+                                    ${need_group[0].confirmed}
+                                </span>
+                                of 
+                                <span i18n:name="total">
+                                    ${need_group[0].min_required}
+                                    -
+                                    ${need_group[0].max_required}
+                                </span>
+                            </tal:b>
+                        </span>
+                    </div>
+
+                    <ul class="dense">
+                        <li>
+
+                        </li>
+                    </ul>
+                </tal:b>
+            </tal:b>
+        </tal:b>
+    </tal:b>
+</div>

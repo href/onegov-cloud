@@ -36,7 +36,7 @@ class VolunteerCart(object):
         ]
 
     def has(self, need_id):
-        return need_id in self.ids
+        return need_id in self.ids()
 
     def ids(self):
         return self.browser_session.get('volunteer_cart', ())

@@ -4,6 +4,7 @@ from onegov.activity import Booking, BookingCollection
 from onegov.activity import InvoiceCollection, InvoiceItem
 from onegov.activity import Occasion, OccasionCollection, OccasionNeed
 from onegov.activity import Period, PeriodCollection
+from onegov.activity import VolunteerCollection
 from onegov.activity.utils import is_valid_group_code
 from onegov.feriennet import FeriennetApp
 from onegov.feriennet.collections import BillingCollection
@@ -300,3 +301,11 @@ def get_volunteer_cart(request):
     converters=dict(target=UUID))
 def get_volunteer_cart_action(request, action, target):
     return VolunteerCartAction(action, target)
+
+
+@FeriennetApp.path(
+    model=VolunteerCollection,
+    path='/volunteers/{period_id}',
+    converters=dict(period_id=UUID))
+def get_volunteers(request, period_id):
+    return VolunteerCollection(request.session, period_id)

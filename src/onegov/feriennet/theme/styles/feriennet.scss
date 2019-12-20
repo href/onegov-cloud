@@ -3093,6 +3093,13 @@ $booking-left-margin: 2rem;
             border-top: 0;
         }
     }
+
+    .show-details {
+        a::before {
+            @include icon('\f05a');
+            margin-right: 1.25ex;
+        }
+    }
 }
 
 .volunteers-list {
@@ -3153,6 +3160,12 @@ $booking-left-margin: 2rem;
 
     .state-cell {
         font-weight: bold;
+    }
+
+    .volunteer-details {
+        * {
+            font-size: .875rem;
+        }
     }
 
     .volunteer-confirmed {

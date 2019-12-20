@@ -13,9 +13,8 @@
                         Join us as a volunteer. Select the activities you are interested in and fill out the volunteer form. We will contact you afterwards. Activities not listed
                         here are not actively looking for volunteers.
                     </tal:b>
-                    <tal:b>
-                        Note that we cannot guarantee that you will be placed in the same activity as
-                        your children.
+                    <tal:b i18n:translate>
+                        Note that we cannot guarantee that you will be placed in the same activity as your children.
                     </tal:b>
                 </div>
 

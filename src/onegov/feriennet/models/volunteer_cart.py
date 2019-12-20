@@ -116,7 +116,7 @@ class VolunteerCartAction(object):
                     'success': False,
                     'message': request.translate(_(
                         "Could not add item. It overlaps with "
-                        "another item in your list"
+                        "another item in your list."
                     ))
                 }
 

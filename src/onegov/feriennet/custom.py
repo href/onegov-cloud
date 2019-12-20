@@ -27,7 +27,7 @@ def get_global_tools(request):
 
     if request.app.show_volunteers(request):
         yield Link(
-            text=_("Volunteer"),
+            text=_("Help us"),
             url=request.class_link(VacationActivityCollection, name='volunteer'),
             attrs={'class': ('volunteer', 'highlighted')}
         )

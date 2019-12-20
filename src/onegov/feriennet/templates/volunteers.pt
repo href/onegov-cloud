@@ -6,8 +6,7 @@
         <div class="row volunteers-list">
             <div class="columns small-12 medium-8">
                 <div class="panel" i18n:translate tal:condition="not:has_needs">
-                    No activities needing volunteers found. To define volunteers, add them as
-                    needs on each occasion on the activity view.
+                    No activities needing volunteers found.
                 </div>
 
                 <tal:b repeat="activity_group grouped(records, 'activity_id')">

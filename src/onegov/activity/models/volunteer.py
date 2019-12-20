@@ -23,7 +23,6 @@ class Volunteer(Base, ContentMixin, TimestampMixin):
             'open',
             'contacted',
             'confirmed',
-            'denied',
             name='volunteer_state'
         ),
         nullable=False,

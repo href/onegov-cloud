@@ -156,6 +156,10 @@ class FeriennetApp(OrgApp):
         return self.meta.get('donation_amounts', DEFAULT_DONATION_AMOUNTS)
 
     def show_volunteers(self, request):
+
+        if not self.active_period:
+            return False
+
         setting = self.org.meta.get('volunteers', 'disabled')
 
         if setting == 'enabled':

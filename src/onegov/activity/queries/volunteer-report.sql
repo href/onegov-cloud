@@ -21,6 +21,7 @@ WITH occasion_numbers AS (
 SELECT
     activities.id AS activity_id,                        -- UUID
     activities.title AS activity_title,                  -- Text
+    activities.name AS activity_name,                    -- Text
     occasion_needs.id AS need_id,                        -- UUID
     occasion_needs.name AS need_name,                    -- Text
     lower(occasion_needs.number) AS min_required,        -- Integer
@@ -63,6 +64,7 @@ FROM
 GROUP BY
     activities.id,
     activities.title,
+    activities.name,
     occasion_needs.id,
     occasion_needs.name,
     occasion_needs.number,

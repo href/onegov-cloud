@@ -6,6 +6,7 @@ from onegov.feriennet.forms import VolunteerForm
 from onegov.feriennet.layout import DefaultLayout
 from onegov.feriennet.layout import VolunteerFormLayout
 from onegov.feriennet.layout import VolunteerLayout
+from onegov.feriennet.models import VacationActivity
 from onegov.feriennet.models import VolunteerCart
 from onegov.feriennet.models import VolunteerCartAction
 from operator import attrgetter
@@ -33,6 +34,9 @@ def view_volunteers(self, request):
             Volunteer, name=state, variables={'id': record.volunteer_id.hex})
         return layout.csrf_protected_url(url)
 
+    def activity_link(activity_name):
+        return request.class_link(VacationActivity, {'name': activity_name})
+
     return {
         'layout': layout,
         'title': _("Volunteers"),
@@ -43,6 +47,7 @@ def view_volunteers(self, request):
         'model': self,
         'has_needs': has_needs,
         'state_change': state_change,
+        'activity_link': activity_link,
     }
 
 

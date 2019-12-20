@@ -11,7 +11,7 @@
                 </div>
 
                 <tal:b repeat="activity_group grouped(records, 'activity_id')">
-                    <h2>${activity_group[0].activity_title}</h2>
+                    <h2><a href="${activity_link(activity_group[0].activity_name)}">${activity_group[0].activity_title}</a></h2>
 
                     <tal:b repeat="occasion_group grouped(activity_group, 'occasion_id')">
                         <h3 id="${occasion_group[0].occasion_id.hex}">

@@ -194,6 +194,14 @@ ul.single-line {
 
 .calendar-icon {
     @include generic-icon('\f133');
+
+    &:first-of-type::before {
+        color: $body-font-color;
+    }
+
+    &::before {
+        color: transparent;
+    }
 }
 
 .calendar-add-icon {

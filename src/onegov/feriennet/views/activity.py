@@ -410,6 +410,9 @@ def view_activities(self, request):
     permission=Public,
     name='volunteer')
 def view_activities_for_volunteers(self, request):
+    if not request.app.show_volunteers(request):
+        raise exc.HTTPForbidden()
+
     active_period = request.app.active_period
     show_activities = bool(active_period or request.is_organiser)
 

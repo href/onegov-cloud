@@ -155,6 +155,17 @@ class FeriennetApp(OrgApp):
     def donation_amounts(self):
         return self.meta.get('donation_amounts', DEFAULT_DONATION_AMOUNTS)
 
+    def show_volunteers(self, request):
+        setting = self.org.meta.get('volunteers', 'disabled')
+
+        if setting == 'enabled':
+            return True
+
+        if setting == 'admins' and request.is_admin:
+            return True
+
+        return False
+
 
 @FeriennetApp.template_directory()
 def get_template_directory():

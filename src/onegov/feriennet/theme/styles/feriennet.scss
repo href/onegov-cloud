@@ -3113,6 +3113,10 @@ $booking-left-margin: 2rem;
     table {
         margin-top: -1rem;
         width: 100%;
+
+        th:last-child {
+            width: 22.5%;
+        }
     }
 
     table + h2 {

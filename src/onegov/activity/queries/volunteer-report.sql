@@ -21,6 +21,7 @@ WITH occasion_numbers AS (
 SELECT
     activities.id AS activity_id,                        -- UUID
     activities.title AS activity_title,                  -- Text
+    occasion_needs.id AS need_id,                        -- UUID
     occasion_needs.name AS need_name,                    -- Text
     lower(occasion_needs.number) AS min_required,        -- Integer
     upper(occasion_needs.number) - 1 AS max_required,    -- Integer
@@ -62,6 +63,7 @@ FROM
 GROUP BY
     activities.id,
     activities.title,
+    occasion_needs.id,
     occasion_needs.name,
     occasion_needs.number,
     occasions.period_id,
@@ -85,9 +87,6 @@ ORDER BY
     activity_id,
     occasions.id,
     occasion_needs.name,
-    volunteers.state='confirmed',
-    volunteers.state='contacted',
-    volunteers.state='open',
-    volunteers.state='denied',
     first_name,
-    last_name
+    last_name,
+    organisation

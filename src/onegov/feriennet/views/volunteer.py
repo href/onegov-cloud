@@ -55,6 +55,9 @@ def handle_open(self, request):
     request.assert_valid_csrf_token()
     self.state = 'open'
 
+    return request.redirect(request.class_link(VolunteerCollection, {
+        'period_id': self.need.occasion.period_id.hex}))
+
 
 @FeriennetApp.view(
     model=Volunteer,
@@ -64,6 +67,9 @@ def handle_open(self, request):
 def handle_contacted(self, request):
     request.assert_valid_csrf_token()
     self.state = 'contacted'
+
+    return request.redirect(request.class_link(VolunteerCollection, {
+        'period_id': self.need.occasion.period_id.hex}))
 
 
 @FeriennetApp.view(
@@ -75,15 +81,21 @@ def handle_confirmed(self, request):
     request.assert_valid_csrf_token()
     self.state = 'confirmed'
 
+    return request.redirect(request.class_link(VolunteerCollection, {
+        'period_id': self.need.occasion.period_id.hex}))
+
 
 @FeriennetApp.view(
     model=Volunteer,
     permission=Secret,
-    name='denied',
+    name='remove',
     request_method='POST')
-def handle_denied(self, request):
+def handle_remove(self, request):
     request.assert_valid_csrf_token()
-    self.state = 'denied'
+    request.session.delete(self)
+
+    return request.redirect(request.class_link(VolunteerCollection, {
+        'period_id': self.need.occasion.period_id.hex}))
 
 
 # Public, even though this is personal data -> the storage is limited to the

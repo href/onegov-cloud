@@ -14,13 +14,13 @@
                     <h2>${activity_group[0].activity_title}</h2>
 
                     <tal:b repeat="occasion_group grouped(activity_group, 'occasion_id')">
-                        <h3 id="${occasion_group[0].occasion_id.hex">
+                        <h3 id="${occasion_group[0].occasion_id.hex}">
                             ${occasion_group[0].occasion_number}.
                             <tal:b i18n:translate>Occasion</tal:b>
                             <span class="right-aligned">${layout.format_datetime_range(*occasion_group[0].dates[0])}</span>
                         </h3>
 
-                        <tal:b repeat="need_group grouped(occasion_group, 'need_name')">
+                        <div tal:repeat="need_group grouped(occasion_group, 'need_id')" id="${need_group[0].need_id.hex}">
 
                             <div class="progress ${int(need_group[0].confirmed) >= int(need_group[0].min_required) and 'success' or 'alert'}">
 
@@ -106,35 +106,49 @@
                                                         </tal:b>
                                                     </a>
                                                 </li>
-                                                <li class="state-transitions">
-                                                    <a ic-post-to="${state_change(record, 'open')}">
-                                                        <i class="fa fa-circle-o" aria-hidden="true"></i>
+                                                <li class="state-transitions" tal:condition="record.state != 'open'">
+                                                    <a ic-post-to="${state_change(record, 'open')}"
+                                                       ic-target="#${need_group[0].need_id.hex}"
+                                                       ic-select-from-response="#${need_group[0].need_id.hex}">
+                                                        <i class="fa fa-fw fa-circle-o" aria-hidden="true"></i>
                                                         <tal:b i18n:translate>
                                                             Mark as open
                                                         </tal:b>
                                                     </a>
                                                 </li>
-                                                <li class="state-transitions">
-                                                    <a href="#">
-                                                        <i class="fa fa-circle" aria-hidden="true"></i>
+                                                <li class="state-transitions" tal:condition="record.state != 'contacted'">
+                                                    <a ic-post-to="${state_change(record, 'contacted')}"
+                                                       ic-target="#${need_group[0].need_id.hex}"
+                                                       ic-select-from-response="#${need_group[0].need_id.hex}">
+                                                        <i class="fa fa-fw fa-circle" aria-hidden="true"></i>
                                                         <tal:b i18n:translate>
                                                             Mark as contacted
                                                         </tal:b>
                                                     </a>
                                                 </li>
-                                                <li class="state-transitions">
-                                                    <a href="#">
-                                                        <i class="fa fa-check-circle" aria-hidden="true"></i>
+                                                <li class="state-transitions" tal:condition="record.state != 'confirmed'">
+                                                    <a ic-post-to="${state_change(record, 'confirmed')}"
+                                                       ic-target="#${need_group[0].need_id.hex}"
+                                                       ic-select-from-response="#${need_group[0].need_id.hex}">
+                                                        <i class="fa fa-fw fa-check-circle" aria-hidden="true"></i>
                                                         <tal:b i18n:translate>
                                                             Mark as confirmed
                                                         </tal:b>
                                                     </a>
                                                 </li>
                                                 <li class="state-transitions">
-                                                    <a href="#">
-                                                        <i class="fa fa-ban" aria-hidden="true"></i>
+                                                    <a class="confirm"
+                                                       ic-post-to="${state_change(record, 'remove')}"
+                                                       ic-target="#${need_group[0].need_id.hex}"
+                                                       ic-select-from-response="#${need_group[0].need_id.hex}"
+                                                       data-confirm="Do you really want to remove this volunteer?"
+                                                       data-confirm-extra="${record.first_name} ${record.last_name}"
+                                                       data-confirm-yes="Remove volunteer"
+                                                       data-confirm-no="Cancel"
+                                                       i18n:attributes="data-confirm;data-confirm-yes;data-confirm-no">
+                                                        <i class="fa fa-fw fa-ban" aria-hidden="true"></i>
                                                         <tal:b i18n:translate>
-                                                            Mark as denied
+                                                            Remove
                                                         </tal:b>
                                                     </a>
                                                 </li>
@@ -143,7 +157,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                        </tal:b>
+                        </div>
                     </tal:b>
                 </tal:b>
             </div>
